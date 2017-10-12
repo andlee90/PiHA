@@ -1,0 +1,134 @@
+package Controllers;
+
+import CommandObjects.RgbLedCommand;
+import Database.Helper;
+import DeviceObjects.Device;
+import DeviceObjects.RgbLed;
+import Managers.MainManager;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinState;
+
+/**
+ * Implementation of DeviceController for controlling a single RGBLED. Commented-out lines are commented to facilitate
+ * testing outside of a Raspbian environment (In this case, no GPIO pins are available and an exception is thrown when
+ * these lines are called). Uncomment before testing on a Pi.
+ */
+public class RgbLedController extends DeviceController
+{
+    private volatile RgbLed device;            // The device being controlled.
+    private GpioController gpio;               // The controller for the device.
+    private GpioPinDigitalOutput redPin;       // The first pin to which the device in connected.
+    private GpioPinDigitalOutput greenPin;     // The second pin to which the device in connected.
+    private GpioPinDigitalOutput bluePin;      // The third pin to which the device in connected.
+
+
+    RgbLedController(Device device)
+    {
+        this.device = (RgbLed) device;
+
+        int r = this.device.getDevicePins().get(0);
+        int g = this.device.getDevicePins().get(1);
+        int b = this.device.getDevicePins().get(2);
+
+        gpio = GpioFactory.getInstance();
+
+        redPin = gpio.provisionDigitalOutputPin(MainManager.getGpioPin(r), this.device.getDeviceName(), PinState.LOW);
+        redPin.setShutdownOptions(true, PinState.LOW);
+
+        greenPin = gpio.provisionDigitalOutputPin(MainManager.getGpioPin(g), this.device.getDeviceName(), PinState.LOW);
+        greenPin.setShutdownOptions(true, PinState.LOW);
+
+        bluePin = gpio.provisionDigitalOutputPin(MainManager.getGpioPin(b), this.device.getDeviceName(), PinState.LOW);
+        bluePin.setShutdownOptions(true, PinState.LOW);
+    }
+
+    @Override
+    public boolean isAvailable()
+    {
+        return device.getDeviceStatus().equals(Device.DeviceStatus.AVAILABLE);
+    }
+
+    @Override
+    public Enum issueCommand(Enum ct)
+    {
+        // Turn off device
+        redPin.blink(0);
+        greenPin.blink(0);
+        bluePin.blink(0);
+        redPin.setState(PinState.LOW);
+        greenPin.setState(PinState.LOW);
+        bluePin.setState(PinState.LOW);
+        device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+
+        switch ((RgbLedCommand.RgbLedCommandType)ct)
+        {
+            case TOGGLE_RED:
+                redPin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_RED);
+            case TOGGLE_GREEN:
+                greenPin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_GREEN);
+            case TOGGLE_BLUE:
+                bluePin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_BLUE);
+            case TOGGLE_MAGENTA:
+                bluePin.toggle();
+                redPin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_MAGENTA);
+            case TOGGLE_YELLOW:
+                redPin.toggle();
+                greenPin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_YELLOW);
+            case TOGGLE_CYAN:
+                bluePin.toggle();
+                greenPin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_CYAN);
+            case TOGGLE_WHITE:
+                redPin.toggle();
+                greenPin.toggle();
+                bluePin.toggle();
+                device.setDeviceMode(RgbLed.RgbLedMode.ON_WHITE);
+            case BLINK_RED:
+                redPin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_RED);
+            case BLINK_GREEN:
+                greenPin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_GREEN);
+            case BLINK_BLUE:
+                bluePin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_BLUE);
+            case BLINK_MAGENTA:
+                redPin.blink(100);
+                bluePin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_MAGENTA);
+            case BLINK_YELLOW:
+                redPin.blink(100);
+                greenPin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_YELLOW);
+            case BLINK_CYAN:
+                greenPin.blink(100);
+                bluePin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_CYAN);
+            case BLINK_WHITE:
+                redPin.blink(100);
+                greenPin.blink(100);
+                bluePin.blink(100);
+                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_WHITE);
+        }
+
+        System.out.println("> [" + MainManager.getDate() + "] "
+                + device.getDeviceName() + " on "
+                + device.getDevicePins() + " is "
+                + device.getDeviceMode());
+
+        Helper.updateDevice(device.getDeviceId(),
+                device.getDeviceName(),
+                Device.DeviceType.RGB_LED.toString(),
+                device.getDeviceStatus().toString(),
+                device.getDeviceMode().toString());
+
+        return device.getDeviceMode();
+    }
+}
