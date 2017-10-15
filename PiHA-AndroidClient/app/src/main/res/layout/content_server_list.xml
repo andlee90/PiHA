@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/activity_server_list"
+    tools:context="com.andlee90.piha.piha_androidclient.UI.ServerConfiguration.ServerListActivity">
+
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
+
+    <TextView
+        android:id="@+id/empty_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No Servers Configured"
+        android:gravity="center" />
+
+</android.support.constraint.ConstraintLayout>
