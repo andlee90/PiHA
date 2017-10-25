@@ -136,7 +136,7 @@ public class ClientManager extends Thread
             this.serverOutputStream.close();
             this.socket.close();
 
-            Thread.currentThread().interrupt(); // Terminate thread
+            //Thread.currentThread().interrupt(); // Terminate thread
         }
         catch (IOException e1)
         {
