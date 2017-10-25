@@ -78,7 +78,7 @@ public class ServerEditorActivity extends AppCompatActivity implements LoaderMan
         {
             case R.id.action_delete:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Are you sure?");
+                builder.setTitle("Delete " + mServerItem.getName() + "?");
 
                 builder.setPositiveButton("Delete", (dialog, which) ->
                 {

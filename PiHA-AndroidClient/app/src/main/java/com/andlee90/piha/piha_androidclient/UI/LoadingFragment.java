@@ -12,7 +12,9 @@ import com.andlee90.piha.piha_androidclient.R;
 
 public class LoadingFragment extends Fragment
 {
-    private TextView mTextView;
+    private TextView mServerTextView;
+    private TextView mUserTextView;
+    private TextView mDevicesTextView;
 
     public static LoadingFragment newInstance()
     {
@@ -30,18 +32,34 @@ public class LoadingFragment extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_loading, container, false);
         ProgressBar progressBar = view.findViewById(R.id.progress_bar_status);
-        mTextView = view.findViewById(R.id.textview_status);
-        mTextView.setText("Establishing connection with servers...");
+        mServerTextView = view.findViewById(R.id.textview_server);
+        mUserTextView = view.findViewById(R.id.textview_user);
+        mDevicesTextView = view.findViewById(R.id.textview_devices);
 
         return view;
     }
 
-    public void updateTextView(String text)
+    public void updateServerTextView(String text)
     {
-        if(mTextView != null)
+        if(mServerTextView != null)
         {
-            String newText = mTextView.getText() + text;
-            this.mTextView.setText(newText);
+            this.mServerTextView.setText(text);
+        }
+    }
+
+    public void updateUserTextView(String text)
+    {
+        if(mUserTextView != null)
+        {
+            this.mUserTextView.setText(text);
+        }
+    }
+
+    public void updateDevicesTextView(String text)
+    {
+        if(mDevicesTextView != null)
+        {
+            this.mDevicesTextView.setText(text);
         }
     }
 }

@@ -1,25 +1,48 @@
 package com.andlee90.piha.piha_androidclient.UI;
 
+import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.Loader;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.andlee90.piha.piha_androidclient.Database.ServerItem;
+import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
 import com.andlee90.piha.piha_androidclient.Networking.ServerConnectionService;
 import com.andlee90.piha.piha_androidclient.R;
 import com.andlee90.piha.piha_androidclient.UI.ServerConfiguration.ServerListActivity;
 
-public class MainActivity extends AppCompatActivity
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import DeviceObjects.Device;
+import DeviceObjects.DeviceList;
+import UserObjects.User;
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<ServerItem>>
 {
+    private static final int LOADER_ID = 0;
+    public static final String RECEIVE_USER = "com.andlee90.piha.RECEIVE_USER";
+    public static final String RECEIVE_DEVICES = "com.andlee90.piha.RECEIVE_DEVICES";
+
     ServerConnectionService mService;
     boolean mBound = false;
     LoadingFragment mLoadingFragment;
+    DeviceListFragment mDeviceListFragment;
+
+    private List<ServerItem> mServers;
+    private ArrayList<Device> mAllDevices = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -27,9 +50,17 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLoadingFragment = LoadingFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_loading_container, mLoadingFragment, null).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mLoadingFragment, null).commit();
+
+        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 
         startService(new Intent(this, ServerConnectionService.class));
+
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_USER);
+        intentFilter.addAction(RECEIVE_DEVICES);
+        broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override
@@ -52,6 +83,31 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        broadcastManager.unregisterReceiver(broadcastReceiver);
+        super.onDestroy();
+    }
+
+    @Override
+    public Loader<List<ServerItem>> onCreateLoader(int id, Bundle args)
+    {
+        return new ServerListLoader(getApplicationContext());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<ServerItem>> loader, List<ServerItem> data)
+    {
+        mServers = data;
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<ServerItem>> loader)
+    {
+        //TODO: Implement method.
+    }
+
     private ServiceConnection mConnection = new ServiceConnection()
     {
         @Override
@@ -61,7 +117,14 @@ public class MainActivity extends AppCompatActivity
             mService = binder.getService();
             mBound = true;
 
-            mLoadingFragment.updateTextView(" Done");
+            try
+            {
+                connectToServers();
+            }
+            catch (ExecutionException | InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -96,4 +159,36 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void connectToServers() throws ExecutionException, InterruptedException
+    {
+        for(ServerItem server : mServers)
+        {
+            mService.establishConnection(server);
+        }
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            if(intent.getAction().equals(RECEIVE_USER))
+            {
+                User user = (User)intent.getSerializableExtra("user");
+
+                mDeviceListFragment = DeviceListFragment.newInstance();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mDeviceListFragment, null).commit();
+            }
+
+            else if(intent.getAction().equals(RECEIVE_DEVICES))
+            {
+                DeviceList devices = (DeviceList)intent.getSerializableExtra("devices");
+
+                mAllDevices.addAll(devices.getDevices());
+                mDeviceListFragment.setListView(mAllDevices);
+            }
+        }
+    };
+    LocalBroadcastManager broadcastManager;
 }

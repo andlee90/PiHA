@@ -2,13 +2,20 @@ package com.andlee90.piha.piha_androidclient.Networking;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
+
+import com.andlee90.piha.piha_androidclient.Database.ServerItem;
+import com.andlee90.piha.piha_androidclient.UI.MainActivity;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Hashtable;
+import java.util.concurrent.ExecutionException;
 
 import CommandObjects.Command;
 import DeviceObjects.Device;
@@ -18,48 +25,19 @@ import UserObjects.User;
 /**
  * Manages all network activities via a series of AsyncTasks.
  */
-public class ServerConnectionService extends Service implements Runnable
+public class ServerConnectionService extends Service
 {
-    private String mServerAddress;
-    private int mServerPort;
-    private User mUser;
+    private static Hashtable<Integer, Socket> sServerTable = new Hashtable<>();
+
+    private volatile User mUser;
     private DeviceList mDevices;
     private Device mDevice;
+    private Command mCommand;
 
     private volatile ObjectOutputStream mOutputStream;
     private volatile ObjectInputStream mInputStream;
 
     private final IBinder mBinder = new ServerConnectionBinder();
-
-    public ServerConnectionService()
-    {}
-
-    public ServerConnectionService(String address, int port, String username, String password)
-    {
-        this.mServerAddress = address;
-        this.mServerPort = port;
-        this.mUser = new User(0, username, password, "", "", "", "");
-
-        run(); //Set up socket & streams
-    }
-
-    /**
-     * Initializes socket and streams on a background thread.
-     */
-    @Override
-    public void run()
-    {
-        try
-        {
-            Socket mSocket = new Socket(mServerAddress, mServerPort);
-            mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
-            mInputStream = new ObjectInputStream(mSocket.getInputStream());
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
 
     public class ServerConnectionBinder extends Binder
     {
@@ -70,55 +48,115 @@ public class ServerConnectionService extends Service implements Runnable
     }
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
-    public User establishConnection()
+    public void establishConnection(ServerItem server) throws ExecutionException, InterruptedException
     {
-        new EstablishConnectionTask(mOutputStream, mInputStream, mUser,
-                new EstablishConnectionTask.TaskResultListener() {
-                    @Override
-                    public void getResult(User result)
-                    {
-                        mUser = result;
-                    }
-                }).execute();
-
-        return mUser;
-    }
-
-    public DeviceList fetchDevices()
-    {
-        new FetchDevicesTask(mOutputStream, mInputStream,
-                new FetchDevicesTask.TaskResultListener() {
-                    @Override
-                    public void getResult(DeviceList result)
-                    {
-                        mDevices = result;
-                    }
-                }).execute();
-
-        return mDevices;
+        new EstablishConnectionTask(server).execute();
     }
 
     public void initializeController(Device device)
     {
-        new InitializeControllerTask(mOutputStream, device).execute();
+        new InitializeControllerTask(device).execute();
     }
 
-    public Device issueCommand(Command command)
+    public Device issueCommand(Command command) throws ExecutionException, InterruptedException
     {
-        new IssueCommandTask(mOutputStream, mInputStream, command,
-                new IssueCommandTask.TaskResultListener() {
-                    @Override
-                    public void getResult(Device result)
-                    {
-                        mDevice = result;
-                    }
-                }).execute();
+        return new IssueCommandTask(command).execute().get();
+    }
 
-        return mDevice;
+    private class EstablishConnectionTask extends AsyncTask<Void, Void, Void>
+    {
+        private ServerItem server;
+
+        public EstablishConnectionTask(ServerItem s)
+        {
+            this.server = s;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            User user = new User(0, server.getUsername(), server.getPassword(), "", "", "", "");
+            DeviceList devices = new DeviceList();
+
+            try
+            {
+                Socket mSocket = new Socket(server.getAddress(), server.getPort());
+                sServerTable.put(server.getId(), mSocket);
+
+                mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
+                mInputStream = new ObjectInputStream(mSocket.getInputStream());
+
+                mOutputStream.writeObject(user);
+                mUser = (User) mInputStream.readObject();
+
+                Intent userIntent = new Intent(MainActivity.RECEIVE_USER);
+                userIntent.putExtra("user", mUser);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(userIntent);
+
+                mOutputStream.writeObject(devices);
+                mDevices = (DeviceList) mInputStream.readObject();
+
+                Intent devicesIntent = new Intent(MainActivity.RECEIVE_DEVICES);
+                devicesIntent.putExtra("devices", mDevices);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(devicesIntent);
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    public class InitializeControllerTask extends AsyncTask<Void, Void, Device>
+    {
+        public InitializeControllerTask(Device device)
+        {
+            mDevice = device;
+        }
+
+        @Override
+        protected Device doInBackground(Void... params)
+        {
+            try
+            {
+                mOutputStream.writeObject(mDevice);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            return mDevice;
+        }
+    }
+
+    public class IssueCommandTask extends AsyncTask<Void, Void, Device>
+    {
+        public IssueCommandTask(Command command)
+        {
+            mCommand = command;
+        }
+
+        @Override
+        protected Device doInBackground(Void... params)
+        {
+            try
+            {
+                mOutputStream.writeObject(mCommand);
+                mDevice = (Device) mInputStream.readObject();
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return mDevice;
+        }
     }
 }
