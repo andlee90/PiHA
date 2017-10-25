@@ -20,6 +20,7 @@ public class RelayModule extends Device
     private DeviceStatus deviceStatus;
     private RelayModuleMode deviceMode;
     private User deviceUser;
+    private int hostServerId;
 
     public RelayModule(int id, ArrayList<Integer> pins, String name, DeviceStatus ds, RelayModuleMode dm)
     {
@@ -29,6 +30,7 @@ public class RelayModule extends Device
         this.deviceStatus = ds;
         this.deviceMode = dm;
         this.deviceUser = null;
+        this.hostServerId = -1;
     }
 
     @Override
@@ -74,6 +76,12 @@ public class RelayModule extends Device
     }
 
     @Override
+    public int getHostServerId()
+    {
+        return hostServerId;
+    }
+
+    @Override
     public void setDevicePins(ArrayList<Integer> pins)
     {
         this.devicePins = pins;
@@ -101,6 +109,12 @@ public class RelayModule extends Device
     public void setCurrentDeviceUser(User user)
     {
         this.deviceUser = user;
+    }
+
+    @Override
+    public void setHostServerId(int id)
+    {
+        this.hostServerId = id;
     }
 
     /**

@@ -21,6 +21,7 @@ public class RgbLed extends Device
     private DeviceStatus deviceStatus;
     private RgbLedMode deviceMode;
     private User deviceUser;
+    private int hostServerId;
 
     public RgbLed(int id, ArrayList<Integer> pins, String name, DeviceStatus ds, RgbLedMode dm)
     {
@@ -30,6 +31,7 @@ public class RgbLed extends Device
         this.deviceStatus = ds;
         this.deviceMode = dm;
         this.deviceUser = null;
+        this.hostServerId = -1;
     }
 
     @Override
@@ -75,6 +77,12 @@ public class RgbLed extends Device
     }
 
     @Override
+    public int getHostServerId()
+    {
+        return hostServerId;
+    }
+
+    @Override
     public void setDevicePins(ArrayList<Integer> pins)
     {
         this.devicePins = pins;
@@ -102,6 +110,12 @@ public class RgbLed extends Device
     public void setCurrentDeviceUser(User user)
     {
         this.deviceUser = user;
+    }
+
+    @Override
+    public void setHostServerId(int id)
+    {
+        this.hostServerId = id;
     }
 
     /**

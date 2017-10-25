@@ -27,12 +27,14 @@ public abstract class Device implements Serializable
     public abstract DeviceStatus getDeviceStatus();
     public abstract Enum getDeviceMode();
     public abstract User getCurrentDeviceUser();
+    public abstract int getHostServerId();
 
     public abstract void setDevicePins(ArrayList<Integer> pins);
     public abstract void setDeviceName(String name);
     public abstract void setDeviceStatus(DeviceStatus status);
     public abstract void setDeviceMode(Enum mode);
     public abstract void setCurrentDeviceUser(User user);
+    public abstract void setHostServerId(int id);
 
     /**
      * Convert a device type string to a DeviceType.
