@@ -1,8 +1,11 @@
-package com.andlee90.piha.piha_androidclient.UI.ServerConfiguration;
+package com.andlee90.piha.piha_androidclient.UI.Configuration;
 
+import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,11 @@ public class EditorFragment extends Fragment
 {
     private ServerItem mServerItem;
 
+    public static EditorFragment newInstance()
+    {
+        return new EditorFragment();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -29,7 +37,6 @@ public class EditorFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_editor, container, false);
-
         EditText serverNameEdit = view.findViewById(R.id.editor_server_name);
         EditText serverAddressEdit = view.findViewById(R.id.editor_server_address);
         EditText serverPortEdit = view.findViewById(R.id.editor_server_port);

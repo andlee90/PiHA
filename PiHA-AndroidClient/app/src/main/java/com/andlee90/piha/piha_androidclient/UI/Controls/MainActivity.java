@@ -1,4 +1,4 @@
-package com.andlee90.piha.piha_androidclient.UI;
+package com.andlee90.piha.piha_androidclient.UI.Controls;
 
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
@@ -20,7 +20,7 @@ import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
 import com.andlee90.piha.piha_androidclient.Networking.ServerConnectionService;
 import com.andlee90.piha.piha_androidclient.R;
-import com.andlee90.piha.piha_androidclient.UI.ServerConfiguration.ServerListActivity;
+import com.andlee90.piha.piha_androidclient.UI.Configuration.ServerListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 {
     private static final int LOADER_ID = 0;
     public static final String RECEIVE_USER = "com.andlee90.piha.RECEIVE_USER";
-    public static final String RECEIVE_DEVICES = "com.andlee90.piha.RECEIVE_DEVICES";
+    public static final String RECEIVE_DEVICE_LIST = "com.andlee90.piha.RECEIVE_DEVICE_LIST";
+    public static final String RECEIVE_DEVICE = "com.andlee90.piha.RECEIVE_DEVICE";
 
     ServerConnectionService mService;
     boolean mBound = false;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         broadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RECEIVE_USER);
-        intentFilter.addAction(RECEIVE_DEVICES);
+        intentFilter.addAction(RECEIVE_DEVICE_LIST);
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onDestroy()
     {
         broadcastManager.unregisterReceiver(broadcastReceiver);
+        mService.stopService(new Intent(this, ServerConnectionService.class));
         super.onDestroy();
     }
 
@@ -181,10 +183,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mDeviceListFragment, null).commit();
             }
 
-            else if(intent.getAction().equals(RECEIVE_DEVICES))
+            else if(intent.getAction().equals(RECEIVE_DEVICE_LIST))
             {
                 DeviceList devices = (DeviceList)intent.getSerializableExtra("devices");
-
                 mAllDevices.addAll(devices.getDevices());
                 mDeviceListFragment.setListView(mAllDevices);
             }

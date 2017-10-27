@@ -1,22 +1,17 @@
-package com.andlee90.piha.piha_androidclient.UI.ServerConfiguration;
+package com.andlee90.piha.piha_androidclient.UI.Configuration;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
 import android.support.v4.app.FragmentPagerAdapter;
 
-public class EditorFragmentPagerAdapter extends FragmentPagerAdapter
+class EditorFragmentPagerAdapter extends FragmentPagerAdapter
 {
-    final int PAGE_COUNT = 5;
+    private final int PAGE_COUNT = 5;
     private String tabTitles[] = new String[] { "Edit", "Devices", "Users", "Roles", "Rules" };
-    private Context context;
-    private FragmentManager fm;
 
-    public EditorFragmentPagerAdapter(FragmentManager fm, Context context)
+    EditorFragmentPagerAdapter(FragmentManager fm)
     {
         super(fm);
-        this.fm = fm;
-        this.context = context;
     }
 
     @Override
@@ -30,11 +25,11 @@ public class EditorFragmentPagerAdapter extends FragmentPagerAdapter
     {
         if(position == 0)
         {
-            return new EditorFragment();
+            return EditorFragment.newInstance();
         }
         else
         {
-            return DevicesFragment.newInstance(position + 1);
+            return DevicesFragment.newInstance();
         }
     }
 

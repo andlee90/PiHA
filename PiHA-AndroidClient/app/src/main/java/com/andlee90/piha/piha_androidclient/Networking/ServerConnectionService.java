@@ -8,7 +8,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
-import com.andlee90.piha.piha_androidclient.UI.MainActivity;
+import com.andlee90.piha.piha_androidclient.UI.Controls.MainActivity;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -27,16 +27,11 @@ import UserObjects.User;
  */
 public class ServerConnectionService extends Service
 {
-    private static Hashtable<Integer, Socket> sServerTable = new Hashtable<>();
+    // Map a server's id to its object streams
+    private volatile static Hashtable<Integer, ObjectOutputStream> sOutputTable = new Hashtable<>();
+    private volatile static Hashtable<Integer, ObjectInputStream> sInputTable = new Hashtable<>();
 
-    private volatile User mUser;
-    private DeviceList mDevices;
-    private Device mDevice;
-    private Command mCommand;
-
-    private volatile ObjectOutputStream mOutputStream;
-    private volatile ObjectInputStream mInputStream;
-
+    // Binds this service to an activity
     private final IBinder mBinder = new ServerConnectionBinder();
 
     public class ServerConnectionBinder extends Binder
@@ -52,26 +47,39 @@ public class ServerConnectionService extends Service
         return mBinder;
     }
 
+    /**
+     * Execution method for connecting to a server and receiving it's devices.
+     */
     public void establishConnection(ServerItem server) throws ExecutionException, InterruptedException
     {
         new EstablishConnectionTask(server).execute();
     }
 
-    public void initializeController(Device device)
+    /**
+     * Execution method for issuing a command to a specific device and receiving changes made to it
+     * by it's hosting server.
+     */
+    public void issueCommand(Device device, Command command) throws ExecutionException, InterruptedException
     {
-        new InitializeControllerTask(device).execute();
+        new IssueCommandTask(device, command).execute();
     }
 
-    public Device issueCommand(Command command) throws ExecutionException, InterruptedException
-    {
-        return new IssueCommandTask(command).execute().get();
-    }
-
+    /**
+     * Background task for connecting to a server and receiving it's devices.
+     *
+     * Performs the following actions:
+     *
+     * 1) Establish socket connection to server.
+     * 2) Create object streams and store them in the corresponding table.
+     * 3) Write user to server and receive updated user. Send user broadcast.
+     * 4) If authenticated, continue.
+     * 5) Write empty device list and receive back server's devices. Send device list broadcast.
+     */
     private class EstablishConnectionTask extends AsyncTask<Void, Void, Void>
     {
         private ServerItem server;
 
-        public EstablishConnectionTask(ServerItem s)
+        EstablishConnectionTask(ServerItem s)
         {
             this.server = s;
         }
@@ -84,25 +92,35 @@ public class ServerConnectionService extends Service
 
             try
             {
-                Socket mSocket = new Socket(server.getAddress(), server.getPort());
-                sServerTable.put(server.getId(), mSocket);
+                Socket socket = new Socket(server.getAddress(), server.getPort());
 
-                mOutputStream = new ObjectOutputStream(mSocket.getOutputStream());
-                mInputStream = new ObjectInputStream(mSocket.getInputStream());
+                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                sOutputTable.put(server.getId(), outputStream);
 
-                mOutputStream.writeObject(user);
-                mUser = (User) mInputStream.readObject();
+                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+                sInputTable.put(server.getId(), inputStream);
+
+                outputStream.writeObject(user);
+                user = (User) inputStream.readObject();
 
                 Intent userIntent = new Intent(MainActivity.RECEIVE_USER);
-                userIntent.putExtra("user", mUser);
+                userIntent.putExtra("user", user);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(userIntent);
 
-                mOutputStream.writeObject(devices);
-                mDevices = (DeviceList) mInputStream.readObject();
+                if(user.getUserId() != 0)
+                {
+                    outputStream.writeObject(devices);
+                    devices = (DeviceList) inputStream.readObject();
 
-                Intent devicesIntent = new Intent(MainActivity.RECEIVE_DEVICES);
-                devicesIntent.putExtra("devices", mDevices);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(devicesIntent);
+                    for(Device device: devices.getDevices())
+                    {
+                        device.setHostServerId(server.getId());
+                    }
+
+                    Intent devicesIntent = new Intent(MainActivity.RECEIVE_DEVICE_LIST);
+                    devicesIntent.putExtra("devices", devices);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(devicesIntent);
+                }
             }
             catch (IOException | ClassNotFoundException e)
             {
@@ -113,50 +131,49 @@ public class ServerConnectionService extends Service
         }
     }
 
-    public class InitializeControllerTask extends AsyncTask<Void, Void, Device>
+    /**
+     * Background task for issuing a command to a specific device and receiving changes made to it
+     * by it's hosting server.
+     *
+     * Performs the following actions:
+     *
+     * 1) Get object streams from the corresponding table.
+     * 2) Write device to server to initialize the device's controller.
+     * 3) Write command to server and receive back updated device. Send device broadcast.
+     */
+    private class IssueCommandTask extends AsyncTask<Void, Void, Void>
     {
-        public InitializeControllerTask(Device device)
+        Device device;
+        Command command;
+
+        IssueCommandTask(Device device, Command command)
         {
-            mDevice = device;
+            this.device = device;
+            this.command = command;
         }
 
         @Override
-        protected Device doInBackground(Void... params)
+        protected Void doInBackground(Void... params)
         {
             try
             {
-                mOutputStream.writeObject(mDevice);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+                ObjectOutputStream outputStream = sOutputTable.get(device.getHostServerId());
+                ObjectInputStream inputStream = sInputTable.get(device.getHostServerId());
 
-            return mDevice;
-        }
-    }
+                outputStream.writeObject(device);
+                outputStream.writeObject(command);
+                device = (Device) inputStream.readObject();
 
-    public class IssueCommandTask extends AsyncTask<Void, Void, Device>
-    {
-        public IssueCommandTask(Command command)
-        {
-            mCommand = command;
-        }
-
-        @Override
-        protected Device doInBackground(Void... params)
-        {
-            try
-            {
-                mOutputStream.writeObject(mCommand);
-                mDevice = (Device) mInputStream.readObject();
+                Intent deviceIntent = new Intent(MainActivity.RECEIVE_DEVICE);
+                deviceIntent.putExtra("device", device);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(deviceIntent);
             }
             catch (IOException | ClassNotFoundException e)
             {
                 e.printStackTrace();
             }
 
-            return mDevice;
+            return null;
         }
     }
 }

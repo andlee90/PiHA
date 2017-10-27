@@ -1,4 +1,4 @@
-package com.andlee90.piha.piha_androidclient.UI;
+package com.andlee90.piha.piha_androidclient.UI.Controls;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,8 +15,12 @@ import android.widget.TextView;
 import com.andlee90.piha.piha_androidclient.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+import CommandObjects.LedCommand;
 import DeviceObjects.Device;
 
 public class DeviceListFragment extends ListFragment
@@ -48,7 +52,6 @@ public class DeviceListFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View view = inflater.inflate(R.layout.fragment_device_list, container, false);
-
         mAdapter = new DeviceListArrayAdapter(mContext,
                 android.R.layout.simple_list_item_1, mDevices);
         setListAdapter(mAdapter);
@@ -62,19 +65,18 @@ public class DeviceListFragment extends ListFragment
         super.onListItemClick(l, v, position, id);
 
         TextView itemTextView = v.findViewById(R.id.device_detail);
+
         if(itemTextView.getVisibility() == View.GONE)
         {
             itemTextView.setVisibility(View.VISIBLE);
-            for(int i = 0; i < mAdapter.getCount(); i++)
+
+            for(int i = 0; i < l.getCount(); i++)
             {
                 View otherView = l.getChildAt(i);
-                if(otherView != null)
+                if(otherView != null && otherView != v && position != i)
                 {
                     TextView otherTextView = otherView.findViewById(R.id.device_detail);
-                    if(i != position)
-                    {
-                        otherTextView.setVisibility(View.GONE);
-                    }
+                    otherTextView.setVisibility(View.GONE);
                 }
             }
         }
@@ -94,6 +96,8 @@ public class DeviceListFragment extends ListFragment
     {
         private LayoutInflater mInflater;
         private List<Device> devices = null;
+        private Map<Integer, View> views = new HashMap<Integer, View>();
+
 
         DeviceListArrayAdapter(Context context, int resourceId, List<Device> devices)
         {
@@ -105,34 +109,44 @@ public class DeviceListFragment extends ListFragment
 
         @NonNull
         @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent)
+        public View getView(final int position, View convertView, @NonNull ViewGroup parent)
         {
-            Device device = devices.get(position);
+            ViewHolder holder;
+            View view = views.get(position);
 
-            if (convertView == null)
+            if (view == null)
             {
-                convertView = mInflater.inflate(R.layout.list_device_items, parent, false);
-                convertView.setTag(new ViewHolder(convertView));
+                view = mInflater.inflate(R.layout.list_device_items, null);
+                holder = new ViewHolder(view);
+
+                Device device = devices.get(position);
+                holder.deviceName.setText(device.getDeviceName());
+                holder.serverId.setText("" + device.getHostServerId());
+                holder.deviceSwitch.setOnClickListener((View v) -> {
+                    try {
+                        ((MainActivity)getActivity()).mService.issueCommand(device, new LedCommand(LedCommand.LedCommandType.TOGGLE));
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+                views.put(position, view);
             }
 
-            ViewHolder holder = (ViewHolder) convertView.getTag();
-            holder.deviceName.setText(device.getDeviceName());
-            holder.deviceSwitch.setOnClickListener(view -> {
-
-            });
-
-            return convertView;
+            return view;
         }
 
         private class ViewHolder
         {
             private final TextView deviceName;
+            private final TextView serverId;
             private final TextView deviceDetail;
             private final Switch deviceSwitch;
 
             ViewHolder(View view)
             {
                 deviceName = view.findViewById(R.id.device_name);
+                serverId = view.findViewById(R.id.server_id);
                 deviceDetail = view.findViewById(R.id.device_detail);
                 deviceSwitch = view.findViewById(R.id.device_switch);
             }

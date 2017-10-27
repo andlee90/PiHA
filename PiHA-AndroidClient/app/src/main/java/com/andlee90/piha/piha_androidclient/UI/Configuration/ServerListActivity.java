@@ -1,4 +1,4 @@
-package com.andlee90.piha.piha_androidclient.UI.ServerConfiguration;
+package com.andlee90.piha.piha_androidclient.UI.Configuration;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
@@ -81,7 +81,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
 
                 builder.setPositiveButton("OK", (dialog, which) ->
                 {
-
                     mServerName = serverName.getText().toString();
                     mServerAddress = serverAddress.getText().toString();
                     mServerPort = serverPort.getText().toString();

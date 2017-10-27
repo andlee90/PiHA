@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UI.MainActivity">
+        <activity android:name=".UI.Controls.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,13 +21,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UI.ServerConfiguration.ServerListActivity"
+            android:name=".UI.Configuration.ServerListActivity"
             android:label="@string/title_activity_server_configuration"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".Networking.ServerConnectionService" />
 
-        <activity android:name=".UI.ServerConfiguration.ServerEditorActivity">
+        <activity android:name=".UI.Configuration.ServerEditorActivity">
 
         </activity>
     </application>

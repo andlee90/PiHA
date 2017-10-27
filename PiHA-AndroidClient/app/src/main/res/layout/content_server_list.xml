@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_server_list"
-    tools:context="com.andlee90.piha.piha_androidclient.UI.ServerConfiguration.ServerListActivity">
+    tools:context="com.andlee90.piha.piha_androidclient.UI.Configuration.ServerListActivity">
 
     <ListView
         android:id="@+id/listview"

@@ -1,4 +1,4 @@
-package com.andlee90.piha.piha_androidclient.UI.ServerConfiguration;
+package com.andlee90.piha.piha_androidclient.UI.Configuration;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
@@ -36,7 +36,7 @@ public class ServerEditorActivity extends AppCompatActivity implements LoaderMan
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         EditorFragmentPagerAdapter pagerAdapter =
-                new EditorFragmentPagerAdapter(getSupportFragmentManager(), ServerEditorActivity.this);
+                new EditorFragmentPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
