@@ -9,7 +9,11 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -26,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import DeviceObjects.Device;
 import DeviceObjects.DeviceList;
 import UserObjects.User;
 
@@ -39,23 +42,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     ServerConnectionService mService;
     boolean mBound = false;
-    LoadingFragment mLoadingFragment;
-    DeviceListFragment mDeviceListFragment;
 
+    private DeviceListFragment mDeviceListFragment;
+    private ArrayList<Fragment> mFragments;
     private List<ServerItem> mServers;
-    private ArrayList<Device> mAllDevices = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mLoadingFragment = LoadingFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mLoadingFragment, null).commit();
-
-        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 
         startService(new Intent(this, ServerConnectionService.class));
+
+        setContentView(R.layout.activity_main);
+
+        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 
         broadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         intentFilter.addAction(RECEIVE_DEVICE_LIST);
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
+
 
     @Override
     protected void onStart()
@@ -88,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onDestroy()
     {
         broadcastManager.unregisterReceiver(broadcastReceiver);
-        mService.stopService(new Intent(this, ServerConnectionService.class));
+        //mService.stopService(new Intent(this, ServerConnectionService.class));
         super.onDestroy();
     }
 
@@ -102,6 +104,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<List<ServerItem>> loader, List<ServerItem> data)
     {
         mServers = data;
+        mFragments = new ArrayList<>();
+
+        for(ServerItem serverItem: mServers)
+        {
+            mFragments.add(WrapperFragment.newInstance());
+        }
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        PagerAdapter pagerAdapter = new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), mServers, mFragments);
+        viewPager.setAdapter(pagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
@@ -178,16 +193,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             if(intent.getAction().equals(RECEIVE_USER))
             {
                 User user = (User)intent.getSerializableExtra("user");
-
                 mDeviceListFragment = DeviceListFragment.newInstance();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mDeviceListFragment, null).commit();
+                WrapperFragment wf = (WrapperFragment)mFragments.get((int)intent.getSerializableExtra("serverId")-1);
+                wf.swapFragment(mDeviceListFragment);
             }
 
             else if(intent.getAction().equals(RECEIVE_DEVICE_LIST))
             {
                 DeviceList devices = (DeviceList)intent.getSerializableExtra("devices");
-                mAllDevices.addAll(devices.getDevices());
-                mDeviceListFragment.setListView(mAllDevices);
+                mDeviceListFragment.setListView(devices.getDevices());
             }
         }
     };

@@ -105,12 +105,14 @@ public class ServerConnectionService extends Service
 
                 Intent userIntent = new Intent(MainActivity.RECEIVE_USER);
                 userIntent.putExtra("user", user);
+                userIntent.putExtra("serverId", server.getId());
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(userIntent);
 
                 if(user.getUserId() != 0)
                 {
                     outputStream.writeObject(devices);
                     devices = (DeviceList) inputStream.readObject();
+                    devices.setServerId(server.getId());
 
                     for(Device device: devices.getDevices())
                     {

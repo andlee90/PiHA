@@ -3,6 +3,7 @@ package com.andlee90.piha.piha_androidclient.UI.Controls;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import CommandObjects.LedCommand;
 import DeviceObjects.Device;
+import DeviceObjects.Led;
 
 public class DeviceListFragment extends ListFragment
 {
@@ -51,12 +53,17 @@ public class DeviceListFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.fragment_device_list, container, false);
+        return inflater.inflate(R.layout.fragment_device_list, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+
         mAdapter = new DeviceListArrayAdapter(mContext,
                 android.R.layout.simple_list_item_1, mDevices);
         setListAdapter(mAdapter);
-
-        return view;
     }
 
     @Override
