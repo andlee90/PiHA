@@ -8,12 +8,12 @@ import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 
 import java.util.List;
 
-class MainActivityFragmentPagerAdapter extends FragmentPagerAdapter
+class DeviceListPagerAdapter extends FragmentPagerAdapter
 {
     private List<ServerItem> mServers;
     private List<Fragment> mFragments;
 
-    MainActivityFragmentPagerAdapter(FragmentManager fm, List<ServerItem> s, List<Fragment> f)
+    DeviceListPagerAdapter(FragmentManager fm, List<ServerItem> s, List<Fragment> f)
     {
         super(fm);
         this.mServers = s;

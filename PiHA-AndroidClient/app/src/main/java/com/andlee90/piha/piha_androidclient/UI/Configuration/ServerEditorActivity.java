@@ -35,8 +35,8 @@ public class ServerEditorActivity extends AppCompatActivity implements LoaderMan
         getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        EditorFragmentPagerAdapter pagerAdapter =
-                new EditorFragmentPagerAdapter(getSupportFragmentManager());
+        EditorPagerAdapter pagerAdapter =
+                new EditorPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);

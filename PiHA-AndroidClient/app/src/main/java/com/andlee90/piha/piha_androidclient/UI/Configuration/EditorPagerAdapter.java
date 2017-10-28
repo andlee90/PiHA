@@ -4,12 +4,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-class EditorFragmentPagerAdapter extends FragmentPagerAdapter
+class EditorPagerAdapter extends FragmentPagerAdapter
 {
     private final int PAGE_COUNT = 5;
     private String tabTitles[] = new String[] { "Edit", "Devices", "Users", "Roles", "Rules" };
 
-    EditorFragmentPagerAdapter(FragmentManager fm)
+    EditorPagerAdapter(FragmentManager fm)
     {
         super(fm);
     }

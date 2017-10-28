@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        PagerAdapter pagerAdapter = new MainActivityFragmentPagerAdapter(getSupportFragmentManager(), mServers, mFragments);
+        PagerAdapter pagerAdapter = new DeviceListPagerAdapter(getSupportFragmentManager(), mServers, mFragments);
         viewPager.setAdapter(pagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
