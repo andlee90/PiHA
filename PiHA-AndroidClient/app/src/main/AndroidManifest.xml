@@ -27,9 +27,8 @@
 
         <service android:name=".Networking.ServerConnectionService" />
 
-        <activity android:name=".UI.Configuration.ServerEditorActivity">
-
-        </activity>
+        <activity android:name=".UI.Configuration.ServerEditorActivity"
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>
