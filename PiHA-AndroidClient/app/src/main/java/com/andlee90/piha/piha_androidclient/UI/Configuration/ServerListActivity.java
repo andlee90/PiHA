@@ -70,32 +70,58 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
         {
             case R.id.fab:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Add New Server");
+                builder.setTitle("Add a new server");
 
-                LayoutInflater inflater= this.getLayoutInflater();
+                LayoutInflater inflater = this.getLayoutInflater();
                 View layout = inflater.inflate(R.layout.dialog_add_server,null);
                 builder.setView(layout);
 
-                EditText serverName = layout.findViewById(R.id.server_name);
-                EditText serverAddress = layout.findViewById(R.id.server_address);
-                EditText serverPort = layout.findViewById(R.id.server_port);
+                EditText serverNameEditText = layout.findViewById(R.id.server_name);
+                EditText serverAddressEditText = layout.findViewById(R.id.server_address);
+                EditText serverPortEditText = layout.findViewById(R.id.server_port);
 
                 builder.setPositiveButton("OK", (dialog, which) ->
                 {
-                    mServerName = serverName.getText().toString();
-                    mServerAddress = serverAddress.getText().toString();
-                    mServerPort = serverPort.getText().toString();
+                    mServerName = serverNameEditText.getText().toString();
+                    mServerAddress = serverAddressEditText.getText().toString();
+                    mServerPort = serverPortEditText.getText().toString();
 
-                    if(!mServerName.equals("") && !mServerAddress.equals("") && !mServerPort.equals(""))
+                    if(mServerName.equals("") || mServerAddress.equals("") || mServerPort.equals(""))
                     {
-                        Helper helper = new Helper(getApplicationContext());
-                        helper.insertServer(mServerName, mServerAddress, Integer.parseInt(mServerPort), null, null);
-                        recreate();
+                        Snackbar.make(view, "Please fill out all server fields" , Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
                     }
                     else
                     {
-                        Snackbar.make(view, "Please fill out all fields" , Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
+                        AlertDialog.Builder authBuilder = new AlertDialog.Builder(this);
+                        authBuilder.setTitle("This server requires authentication");
+
+                        LayoutInflater authInflater = this.getLayoutInflater();
+                        View authLayout = authInflater.inflate(R.layout.dialog_login,null);
+                        authBuilder.setView(authLayout);
+
+                        EditText usernameEditText = authLayout.findViewById(R.id.username);
+                        EditText passwordEditText = authLayout.findViewById(R.id.password);
+
+                        authBuilder.setPositiveButton("OK", (authDialog, authWhich) ->
+                        {
+                            String username = usernameEditText.getText().toString();
+                            String password = passwordEditText.getText().toString();
+
+                            if(!username.equals("") && !password.equals(""))
+                            {
+                                Helper helper = new Helper(getApplicationContext());
+                                helper.insertServer(mServerName, mServerAddress, Integer.parseInt(mServerPort), username, password);
+                                recreate();
+                            }
+                            else
+                            {
+                                Snackbar.make(view, "Please fill out username and password" , Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+                        });
+                        authBuilder.setNegativeButton("Cancel", (authDialog, authWhich) -> authDialog.dismiss());
+                        authBuilder.show();
                     }
                 });
                 builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -172,7 +198,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
     {
         private LayoutInflater mInflater;
         private List<ServerItem> servers = null;
-        private Context mContext;
 
         ServerItemArrayAdapter(Context context, int resourceId, List<ServerItem> servers)
         {
@@ -180,7 +205,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
 
             this.servers = servers;
             mInflater = LayoutInflater.from(context);
-            mContext = context;
         }
 
         @NonNull
