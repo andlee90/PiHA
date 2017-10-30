@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -134,6 +135,13 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
         ServerItemArrayAdapter adapter = new ServerItemArrayAdapter(getApplicationContext(),
                 android.R.layout.simple_list_item_1, data);
         mListView.setAdapter(adapter);
+
+        mListView.setOnItemClickListener((adapterView, view, i, l) -> {
+            ServerItem server = (ServerItem) mListView.getItemAtPosition(i);
+            Intent intent = new Intent(getApplicationContext(), ServerEditorActivity.class);
+            intent.putExtra("server_id", server.getId());
+            getApplicationContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -189,13 +197,7 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
 
             ViewHolder holder = (ViewHolder) convertView.getTag();
             holder.serverName.setText(server.getName());
-
-            holder.serverName.setOnClickListener(view ->
-            {
-                Intent intent = new Intent(mContext, ServerEditorActivity.class);
-                intent.putExtra("server_id", server.getId());
-                mContext.startActivity(intent);
-            });
+            holder.serverLocation.setText(server.getAddress() + ":" + server.getPort());
 
             return convertView;
         }
@@ -203,10 +205,12 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
         private class ViewHolder
         {
             private final TextView serverName;
+            private final TextView serverLocation;
 
             ViewHolder(View view)
             {
-                serverName = view.findViewById(R.id.serverName);
+                serverName = view.findViewById(R.id.server_name);
+                serverLocation = view.findViewById(R.id.server_location);
             }
         }
     }
