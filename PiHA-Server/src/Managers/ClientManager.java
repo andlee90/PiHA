@@ -116,6 +116,11 @@ public class ClientManager extends Thread
                     }
                 }
             }
+            else
+            {
+                serverOutputStream.writeObject(user);
+                interrupt();
+            }
         }
         catch (IOException | ClassNotFoundException | InterruptedException e)
         {
@@ -126,17 +131,17 @@ public class ClientManager extends Thread
     /**
      * Interrupts current thread and performs cleanup.
      */
+    @Override
     public void interrupt()
     {
+        super.interrupt();
+
         try
         {
             clientConnections[threadId] = null; // Clear index
-
             this.serverInputStream.close();
             this.serverOutputStream.close();
             this.socket.close();
-
-            //Thread.currentThread().interrupt(); // Terminate thread
         }
         catch (IOException e1)
         {
