@@ -4,4 +4,22 @@
     <color name="colorPrimaryDark">#607D8B</color>
     <color name="colorAccent">#AFB42B</color>
     <color name="colorBackground">#FFFFFF</color>
+
+    <color name="red">#F6402C</color>
+    <color name="magenta">#D500F9</color>
+    <color name="blue">#1565C0</color>
+    <color name="cyan">#26C6DA</color>
+    <color name="green">#46AF4A</color>
+    <color name="yellow">#FFEC16</color>
+    <color name="white">#FFFFFF</color>
+
+    <array name="colors_array">
+        <item name="white">#FFFFFF</item>
+        <item name="red">#F6402C</item>
+        <item name="green">#46AF4A</item>
+        <item name="blue">#1565C0</item>
+        <item name="magenta">#D500F9</item>
+        <item name="cyan">#26C6DA</item>
+        <item name="yellow">#FFEC16</item>
+    </array>
 </resources>
