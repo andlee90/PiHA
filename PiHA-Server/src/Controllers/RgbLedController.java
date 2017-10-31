@@ -53,69 +53,139 @@ public class RgbLedController extends DeviceController
     @Override
     public Enum issueCommand(Enum ct)
     {
-        // Turn off device
-        redPin.blink(0);
-        greenPin.blink(0);
-        bluePin.blink(0);
-        redPin.setState(PinState.LOW);
-        greenPin.setState(PinState.LOW);
-        bluePin.setState(PinState.LOW);
-        device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+        RgbLedCommand.RgbLedCommandType rgbLedCommandType = (RgbLedCommand.RgbLedCommandType)ct;
 
-        switch ((RgbLedCommand.RgbLedCommandType)ct)
+        switch (rgbLedCommandType)
         {
             case TOGGLE_RED:
-                redPin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_RED);
+                if (isBlinking((RgbLed.RgbLedMode)device.getDeviceMode()))
+                {
+                    // If the device is blinking, first turn it off
+                    redPin.blink(0);
+                    redPin.setState(PinState.LOW);
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                }
+                else if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    redPin.toggle();
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_RED);
+                }
+                else {
+                    redPin.toggle();
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                }
+                break;
+
             case TOGGLE_GREEN:
                 greenPin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_GREEN);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_GREEN);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case TOGGLE_BLUE:
                 bluePin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_BLUE);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_BLUE);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case TOGGLE_MAGENTA:
                 bluePin.toggle();
                 redPin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_MAGENTA);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_MAGENTA);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case TOGGLE_YELLOW:
                 redPin.toggle();
                 greenPin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_YELLOW);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_YELLOW);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case TOGGLE_CYAN:
                 bluePin.toggle();
                 greenPin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_CYAN);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_CYAN);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case TOGGLE_WHITE:
                 redPin.toggle();
                 greenPin.toggle();
                 bluePin.toggle();
-                device.setDeviceMode(RgbLed.RgbLedMode.ON_WHITE);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                    device.setDeviceMode(RgbLed.RgbLedMode.ON_WHITE);
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_RED:
                 redPin.blink(100);
                 device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_RED);
+                break;
             case BLINK_GREEN:
-                greenPin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_GREEN);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    greenPin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_GREEN);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_BLUE:
-                bluePin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_BLUE);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    bluePin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_BLUE);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_MAGENTA:
-                redPin.blink(100);
-                bluePin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_MAGENTA);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    redPin.blink(100);
+                    bluePin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_MAGENTA);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_YELLOW:
-                redPin.blink(100);
-                greenPin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_YELLOW);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    redPin.blink(100);
+                    greenPin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_YELLOW);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_CYAN:
-                greenPin.blink(100);
-                bluePin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_CYAN);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    greenPin.blink(100);
+                    bluePin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_CYAN);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
             case BLINK_WHITE:
-                redPin.blink(100);
-                greenPin.blink(100);
-                bluePin.blink(100);
-                device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_WHITE);
+                if(device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                {
+                    redPin.blink(100);
+                    greenPin.blink(100);
+                    bluePin.blink(100);
+                    device.setDeviceMode(RgbLed.RgbLedMode.BLINKING_WHITE);
+                }
+                else
+                    device.setDeviceMode(RgbLed.RgbLedMode.OFF);
+                break;
         }
 
         System.out.println("> [" + MainManager.getDate() + "] "
@@ -130,5 +200,15 @@ public class RgbLedController extends DeviceController
                 device.getDeviceMode().toString());
 
         return device.getDeviceMode();
+    }
+
+    private boolean isBlinking(RgbLed.RgbLedMode m)
+    {
+        String mString = m.toString();
+        if(mString.length() > 8 && mString.substring(0,8).equals("BLINKING"))
+        {
+            return true;
+        }
+        else return false;
     }
 }
