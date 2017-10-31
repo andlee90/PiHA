@@ -37,7 +37,8 @@ public class Helper
                     System.out.print(" Failed\n");
 
                     BuildVariants.buildTestDB();
-                    // BuildVariants.buildProductionDB()
+                    // BuildVariants.buildProductionDB();
+                    // BuildVariants.buildPowerStripDB();
                 }
             }
         }
