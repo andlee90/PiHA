@@ -125,40 +125,65 @@ public class RgbLed extends Device
      */
     public static RgbLedMode getRgbLedModeFromString(String s)
     {
-        switch (s)
+        if(s.equals("ON_RED"))
         {
-            case "ON_RED":
-                return RgbLedMode.ON_RED;
-            case "ON_BLUE":
-                return RgbLedMode.ON_BLUE;
-            case "ON_GREEN":
-                return RgbLedMode.ON_GREEN;
-            case "ON_MAGENTA":
-                return RgbLedMode.ON_MAGENTA;
-            case "ON_CYAN":
-                return RgbLedMode.ON_CYAN;
-            case "ON_YELLOW":
-                return RgbLedMode.ON_YELLOW;
-            case "ON_WHITE":
-                return RgbLedMode.ON_WHITE;
-            case "BLINKING_RED":
-                return RgbLedMode.BLINKING_RED;
-            case "BLINKING_BLUE":
-                return RgbLedMode.BLINKING_BLUE;
-            case "BLINKING_GREEN":
-                return RgbLedMode.BLINKING_GREEN;
-            case "BLINKING_MAGENTA":
-                return RgbLedMode.BLINKING_MAGENTA;
-            case "BLINKING_CYAN":
-                return RgbLedMode.BLINKING_CYAN;
-            case "BLINKING_YELLOW":
-                return RgbLedMode.BLINKING_YELLOW;
-            case "BLINKING_WHITE":
-                return RgbLedMode.BLINKING_WHITE;
-            case "OFF":
-                return RgbLedMode.OFF;
-            default:
-                return RgbLedMode.OFF;
+            return RgbLedMode.ON_RED;
+        }
+        else if(s.equals("ON_BLUE"))
+        {
+            return RgbLedMode.ON_BLUE;
+        }
+        else if(s.equals("ON_GREEN"))
+        {
+            return RgbLedMode.ON_GREEN;
+        }
+        else if(s.equals("ON_MAGENTA"))
+        {
+            return RgbLedMode.ON_MAGENTA;
+        }
+        else if(s.equals("ON_CYAN"))
+        {
+            return RgbLedMode.ON_CYAN;
+        }
+        else if(s.equals("ON_YELLOW"))
+        {
+            return RgbLedMode.ON_YELLOW;
+        }
+        else if(s.equals("ON_WHITE"))
+        {
+            return RgbLedMode.ON_WHITE;
+        }
+        else if(s.equals("BLINKING_RED"))
+        {
+            return RgbLedMode.BLINKING_RED;
+        }
+        else if(s.equals("BLINKING_BLUE"))
+        {
+            return RgbLedMode.BLINKING_BLUE;
+        }
+        else if(s.equals("BLINKING_GREEN"))
+        {
+            return RgbLedMode.BLINKING_GREEN;
+        }
+        else if(s.equals("BLINKING_MAGENTA"))
+        {
+            return RgbLedMode.BLINKING_MAGENTA;
+        }
+        else if(s.equals("BLINKING_CYAN"))
+        {
+            return RgbLedMode.BLINKING_CYAN;
+        }
+        else if(s.equals("BLINKING_YELLOW"))
+        {
+            return RgbLedMode.BLINKING_YELLOW;
+        }
+        else if(s.equals("BLINKING_WHITE"))
+        {
+            return RgbLedMode.BLINKING_WHITE;
+        }
+        else
+        {
+            return RgbLedMode.OFF;
         }
     }
 }
