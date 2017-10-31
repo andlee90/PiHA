@@ -12,14 +12,12 @@ public class RelayModuleViewHolder implements ViewHolder
 {
     private final TextView deviceName;
     private final TextView serverId;
-    private final CheckBox blink;
     private final Switch deviceSwitch;
 
     public RelayModuleViewHolder(View view)
     {
         deviceName = view.findViewById(R.id.device_name);
         serverId = view.findViewById(R.id.server_id);
-        blink = view.findViewById(R.id.blink_check);
         deviceSwitch = view.findViewById(R.id.device_switch);
     }
 
@@ -38,7 +36,7 @@ public class RelayModuleViewHolder implements ViewHolder
     @Override
     public CheckBox getBlink()
     {
-        return blink;
+        return null;
     }
 
     @Override

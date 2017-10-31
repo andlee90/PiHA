@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import CommandObjects.LedCommand;
+import CommandObjects.RelayModuleCommand;
 import CommandObjects.RgbLedCommand;
 import DeviceObjects.Device;
 import DeviceObjects.Led;
@@ -238,28 +239,20 @@ public class DeviceListFragment extends ListFragment
                         viewHolder.getDeviceName().setText(device.getDeviceName());
                         viewHolder.getServerId().setText("" + device.getHostServerId());
 
-                        if (device.getDeviceMode() == RelayModule.RelayModuleMode.OFF)
+                        // Somehow, the logic is backwards for the relay modules. I'll have to
+                        // re-wire them at some point.
+                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
                             viewHolder.getDeviceSwitch().setChecked(false);
                         else viewHolder.getDeviceSwitch().setChecked(true);
 
-                        /*viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
+                        viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
                             try {
-                                if(viewHolder.getBlink().isChecked()) {
-                                    if(!viewHolder.getDeviceSwitch().isChecked()) {
-                                        ((MainActivity)getActivity()).mService.issueCommand(device,
-                                                new LedCommand(LedCommand.LedCommandType.TOGGLE));
-                                    } else {
-                                        ((MainActivity)getActivity()).mService.issueCommand(device,
-                                                new LedCommand(LedCommand.LedCommandType.BLINK));
-                                    }
-                                } else {
-                                    ((MainActivity)getActivity()).mService.issueCommand(device,
-                                            new LedCommand(LedCommand.LedCommandType.TOGGLE));
-                                }
+                                ((MainActivity)getActivity()).mService.issueCommand(device,
+                                        new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
                             } catch (ExecutionException | InterruptedException e) {
                                 e.printStackTrace();
                             }
-                        });*/
+                        });
                         views.put(position, view);
                         break;
 
