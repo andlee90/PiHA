@@ -16,9 +16,11 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         startService(new Intent(this, ServerConnectionService.class));
 
         setContentView(R.layout.activity_main);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(5);
 
         getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 
@@ -64,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         intentFilter.addAction(RECEIVE_DEVICE_LIST);
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
-
 
     @Override
     protected void onStart()
@@ -90,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onDestroy()
     {
         broadcastManager.unregisterReceiver(broadcastReceiver);
-        //mService.stopService(new Intent(this, ServerConnectionService.class));
         super.onDestroy();
     }
 
