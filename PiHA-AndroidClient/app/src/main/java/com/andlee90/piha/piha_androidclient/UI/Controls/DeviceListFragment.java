@@ -198,16 +198,16 @@ public class DeviceListFragment extends ListFragment
                                 RgbLedCommand.RgbLedCommandType ct;
                                 if (viewHolder.getBlink().isChecked()) {
                                     if (!viewHolder.getDeviceSwitch().isChecked()) {
-                                        ct = getColorCommand(false, color);
+                                        ct = rgbLedColor.getColorBlinkCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                     } else {
-                                        ct = getColorCommand(true, color);
+                                        ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                     }
                                 } else {
-                                    ct = getColorCommand(false, color);
+                                    ct = rgbLedColor.getColorToggleCommand(color);
                                     ((MainActivity) getActivity()).mService.issueCommand(device,
                                             new RgbLedCommand(ct));
                                 }
@@ -244,7 +244,7 @@ public class DeviceListFragment extends ListFragment
 
                         // Somehow, the logic is backwards for the relay modules. I'll have to
                         // re-wire them at some point.
-                        if ((device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
+                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
                             viewHolder.getDeviceSwitch().setChecked(false);
                         else viewHolder.getDeviceSwitch().setChecked(true);
 
@@ -362,42 +362,6 @@ public class DeviceListFragment extends ListFragment
                 }
                 return color;
             }
-        }
-
-        private RgbLedCommand.RgbLedCommandType getColorCommand(boolean blink, int color)
-        {
-            RgbLedCommand.RgbLedCommandType ct  = null;
-            if(blink) {
-                if(color == getResources().getColor(R.color.red))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_RED;
-                else if(color == getResources().getColor(R.color.magenta))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_MAGENTA;
-                else  if(color == getResources().getColor(R.color.blue))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_BLUE;
-                else if(color == getResources().getColor(R.color.green))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_GREEN;
-                else if(color == getResources().getColor(R.color.yellow))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_YELLOW;
-                else if(color == getResources().getColor(R.color.cyan))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_CYAN;
-                else if(color == getResources().getColor(R.color.white))
-                    ct = RgbLedCommand.RgbLedCommandType.BLINK_WHITE;
-            } else {
-                if(color == getResources().getColor(R.color.red))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_RED;
-                else if(color == getResources().getColor(R.color.magenta))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_MAGENTA;
-                else  if(color == getResources().getColor(R.color.blue))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_BLUE;
-                else if(color == getResources().getColor(R.color.green))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_GREEN;
-                else if(color == getResources().getColor(R.color.yellow))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_YELLOW;
-                else if(color == getResources().getColor(R.color.cyan))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_CYAN;
-                else if(color == getResources().getColor(R.color.white))
-                    ct = RgbLedCommand.RgbLedCommandType.TOGGLE_WHITE;
-            } return ct;
         }
     }
 }
