@@ -45,6 +45,8 @@ public class DeviceListFragment extends ListFragment
     private DeviceListArrayAdapter mAdapter;
     private ArrayList<Device> mDevices = new ArrayList<>();
 
+    private boolean isAttached = false;
+
     public static DeviceListFragment newInstance()
     {
         return new DeviceListFragment();
@@ -54,6 +56,7 @@ public class DeviceListFragment extends ListFragment
     public void onAttach(Context context)
     {
         super.onAttach(context);
+        isAttached = true;
 
         mContext = context;
     }
@@ -110,7 +113,10 @@ public class DeviceListFragment extends ListFragment
     public void setListView(ArrayList<Device> devices)
     {
         mDevices.addAll(devices);
-        mAdapter.notifyDataSetChanged();
+        if(isAttached)
+        {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private class DeviceListArrayAdapter extends ArrayAdapter<Device>

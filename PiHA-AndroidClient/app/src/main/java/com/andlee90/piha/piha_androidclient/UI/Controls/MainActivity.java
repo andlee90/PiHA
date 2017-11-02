@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     {
         super.onCreate(savedInstanceState);
 
-        startService(new Intent(this, ServerConnectionService.class));
-
         setContentView(R.layout.activity_main);
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(5);
@@ -86,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         {
             unbindService(mConnection);
             mBound = false;
+            mService.stopSelf();
         }
     }
 
