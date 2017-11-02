@@ -219,10 +219,12 @@ public class DeviceListFragment extends ListFragment
                             }
                         });
 
+                        viewHolder.getColorSelectButton().setTextColor(getResources().getColor(R.color.white));
                         viewHolder.getColorSelectButton().setOnClickListener(view12 -> new SpectrumDialog.Builder(getContext())
                                 .setColors(R.array.colors_array)
                                 .setDismissOnColorSelected(true)
                                 .setOutlineWidth(1)
+                                .setSelectedColor(viewHolder.getColorSelectButton().getCurrentTextColor())
                                 .setOnColorSelectedListener((positiveResult, color) -> {
                                     if(positiveResult)
                                     {
