@@ -2,7 +2,6 @@ package com.andlee90.piha.piha_androidclient.UI.Controls;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
@@ -10,11 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
-import android.widget.TextView;
 
 import com.andlee90.piha.piha_androidclient.R;
 import com.andlee90.piha.piha_androidclient.UI.Controls.ViewHolders.LedViewHolder;
@@ -177,14 +173,24 @@ public class DeviceListFragment extends ListFragment
                         break;
 
                     case RGB_LED:
+
+                        RgbLedColor rgbLedColor = new RgbLedColor();
                         view = mInflater.inflate(R.layout.list_rgb_led_items, null);
                         viewHolder = new RgbLedViewHolder(view);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
                         viewHolder.getServerId().setText("" + device.getHostServerId());
 
-                        if (device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                        if (device.getDeviceMode() == RgbLed.RgbLedMode.OFF) {
+                            viewHolder.getColorSelectButton().setTextColor(getResources().getColor(R.color.white));
                             viewHolder.getDeviceSwitch().setChecked(false);
-                        else viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getColorSelectButton().setEnabled(true);
+                        } else {
+                            int c = rgbLedColor.getColor((RgbLed.RgbLedMode) device.getDeviceMode());
+                            viewHolder.getColorSelectButton().setTextColor(
+                                    getResources().getColor(c));
+                            viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getColorSelectButton().setEnabled(false);
+                        }
 
                         viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
                             try {
@@ -192,40 +198,29 @@ public class DeviceListFragment extends ListFragment
                                 RgbLedCommand.RgbLedCommandType ct;
                                 if (viewHolder.getBlink().isChecked()) {
                                     if (!viewHolder.getDeviceSwitch().isChecked()) {
-                                        if(getColorCommand(false, color) != null) {
-                                            ct = getColorCommand(false, color);
-                                            ((MainActivity) getActivity()).mService.issueCommand(device,
-                                                    new RgbLedCommand(ct));
-                                        } else {
-                                            ((MainActivity) getActivity()).mService.issueCommand(device,
-                                                    new RgbLedCommand(RgbLedCommand.RgbLedCommandType.TOGGLE_WHITE));
-                                        }
-                                    } else {
-                                        if(getColorCommand(true, color) != null) {
-                                            ct = getColorCommand(true, color);
-                                            ((MainActivity) getActivity()).mService.issueCommand(device,
-                                                    new RgbLedCommand(ct));
-                                        } else {
-                                            ((MainActivity) getActivity()).mService.issueCommand(device,
-                                                    new RgbLedCommand(RgbLedCommand.RgbLedCommandType.BLINK_WHITE));
-                                        }
-                                    }
-                                } else {
-                                    if(getColorCommand(false, color) != null) {
                                         ct = getColorCommand(false, color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                     } else {
+                                        ct = getColorCommand(true, color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
-                                                new RgbLedCommand(RgbLedCommand.RgbLedCommandType.TOGGLE_WHITE));
+                                                new RgbLedCommand(ct));
                                     }
+                                } else {
+                                    ct = getColorCommand(false, color);
+                                    ((MainActivity) getActivity()).mService.issueCommand(device,
+                                            new RgbLedCommand(ct));
                                 }
+
+                                if(viewHolder.getDeviceSwitch().isChecked())
+                                    viewHolder.getColorSelectButton().setEnabled(false);
+                                else viewHolder.getColorSelectButton().setEnabled(true);
+
                             } catch (ExecutionException | InterruptedException e) {
                                 e.printStackTrace();
                             }
                         });
 
-                        viewHolder.getColorSelectButton().setTextColor(getResources().getColor(R.color.white));
                         viewHolder.getColorSelectButton().setOnClickListener(view12 -> new SpectrumDialog.Builder(getContext())
                                 .setColors(R.array.colors_array)
                                 .setDismissOnColorSelected(true)
@@ -249,7 +244,7 @@ public class DeviceListFragment extends ListFragment
 
                         // Somehow, the logic is backwards for the relay modules. I'll have to
                         // re-wire them at some point.
-                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
+                        if ((device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
                             viewHolder.getDeviceSwitch().setChecked(false);
                         else viewHolder.getDeviceSwitch().setChecked(true);
 
@@ -298,6 +293,75 @@ public class DeviceListFragment extends ListFragment
                 }
             }
             return view;
+        }
+
+        private class RgbLedColor
+        {
+            private int[] colors = {R.color.red, R.color.green, R.color.blue, R.color.magenta,
+                    R.color.yellow, R.color.cyan, R.color.white};
+
+            private RgbLedCommand.RgbLedCommandType[] blinkCommands = {
+                    RgbLedCommand.RgbLedCommandType.BLINK_RED, RgbLedCommand.RgbLedCommandType.BLINK_GREEN,
+                    RgbLedCommand.RgbLedCommandType.BLINK_BLUE, RgbLedCommand.RgbLedCommandType.BLINK_MAGENTA,
+                    RgbLedCommand.RgbLedCommandType.BLINK_YELLOW, RgbLedCommand.RgbLedCommandType.BLINK_CYAN,
+                    RgbLedCommand.RgbLedCommandType.BLINK_WHITE };
+
+            private RgbLedCommand.RgbLedCommandType[] toggleCommands = {
+                    RgbLedCommand.RgbLedCommandType.BLINK_RED, RgbLedCommand.RgbLedCommandType.BLINK_GREEN,
+                    RgbLedCommand.RgbLedCommandType.BLINK_BLUE, RgbLedCommand.RgbLedCommandType.BLINK_MAGENTA,
+                    RgbLedCommand.RgbLedCommandType.BLINK_YELLOW, RgbLedCommand.RgbLedCommandType.BLINK_CYAN,
+                    RgbLedCommand.RgbLedCommandType.BLINK_WHITE };
+
+            private RgbLed.RgbLedMode[] blinkModes = {
+                    RgbLed.RgbLedMode.BLINKING_RED, RgbLed.RgbLedMode.BLINKING_GREEN,
+                    RgbLed.RgbLedMode.BLINKING_BLUE, RgbLed.RgbLedMode.BLINKING_MAGENTA,
+                    RgbLed.RgbLedMode.BLINKING_YELLOW, RgbLed.RgbLedMode.BLINKING_CYAN,
+                    RgbLed.RgbLedMode.BLINKING_WHITE };
+
+            private RgbLed.RgbLedMode[] onModes = {
+                    RgbLed.RgbLedMode.ON_RED, RgbLed.RgbLedMode.ON_GREEN,
+                    RgbLed.RgbLedMode.ON_BLUE, RgbLed.RgbLedMode.ON_MAGENTA,
+                    RgbLed.RgbLedMode.ON_YELLOW, RgbLed.RgbLedMode.ON_CYAN,
+                    RgbLed.RgbLedMode.ON_WHITE };
+
+            public RgbLedCommand.RgbLedCommandType getColorBlinkCommand(int color)
+            {
+                RgbLedCommand.RgbLedCommandType ct  = null;
+                for(int i = 0; i < colors.length; i++)
+                {
+                    if(colors[i] == color)
+                    {
+                        ct = blinkCommands[i];
+                    }
+                }
+                return ct;
+            }
+
+            public RgbLedCommand.RgbLedCommandType getColorToggleCommand(int color)
+            {
+                RgbLedCommand.RgbLedCommandType ct  = null;
+                for(int i = 0; i < colors.length; i++)
+                {
+                    if(colors[i] == color)
+                    {
+                        ct = toggleCommands[i];
+                    }
+                }
+                return ct;
+            }
+
+            public int getColor(RgbLed.RgbLedMode mode)
+            {
+                int color = R.color.cyan;
+                for(int i = 0; i < onModes.length; i++)
+                {
+                    if(onModes[i] == mode || blinkModes[i] == mode)
+                    {
+                        color = colors[i];
+                    }
+                }
+                return color;
+            }
         }
 
         private RgbLedCommand.RgbLedCommandType getColorCommand(boolean blink, int color)
