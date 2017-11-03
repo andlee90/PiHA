@@ -13,13 +13,13 @@ import com.andlee90.piha.piha_androidclient.Database.Helper;
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.R;
 
-public class EditorFragment extends Fragment
+public class ServerEditorFragment extends Fragment
 {
     private ServerItem mServerItem;
 
-    public static EditorFragment newInstance()
+    public static ServerEditorFragment newInstance()
     {
-        return new EditorFragment();
+        return new ServerEditorFragment();
     }
 
     @Override

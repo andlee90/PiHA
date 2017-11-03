@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import com.andlee90.piha.piha_androidclient.R;
 
-public class DevicesFragment extends Fragment
+public class ServerDevicesFragment extends Fragment
 {
-    public static DevicesFragment newInstance()
+    public static ServerDevicesFragment newInstance()
     {
-        return new DevicesFragment();
+        return new ServerDevicesFragment();
     }
 
     @Override

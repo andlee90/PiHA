@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.andlee90.piha.piha_androidclient.UI.General.LoadingFragment;
+import com.andlee90.piha.piha_androidclient.UI.General.WrapperFragment;
 
 class EditorPagerAdapter extends FragmentPagerAdapter
 {
@@ -27,11 +27,11 @@ class EditorPagerAdapter extends FragmentPagerAdapter
     {
         if(position == 0)
         {
-            return EditorFragment.newInstance();
+            return ServerEditorFragment.newInstance();
         }
         else
         {
-            return LoadingFragment.newInstance();
+            return WrapperFragment.newInstance();
         }
     }
 
