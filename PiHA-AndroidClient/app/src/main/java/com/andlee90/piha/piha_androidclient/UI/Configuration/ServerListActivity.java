@@ -17,7 +17,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -164,7 +163,7 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
 
         mListView.setOnItemClickListener((adapterView, view, i, l) -> {
             ServerItem server = (ServerItem) mListView.getItemAtPosition(i);
-            Intent intent = new Intent(getApplicationContext(), ServerEditorActivity.class);
+            Intent intent = new Intent(getApplicationContext(), ServerConfigActivity.class);
             intent.putExtra("server_id", server.getId());
             getApplicationContext().startActivity(intent);
         });

@@ -17,7 +17,7 @@ import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerItemLoader;
 import com.andlee90.piha.piha_androidclient.R;
 
-public class ServerEditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ServerItem>
+public class ServerConfigActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ServerItem>
 {
     private static final int LOADER_ID = 2;
     public int mServerId;

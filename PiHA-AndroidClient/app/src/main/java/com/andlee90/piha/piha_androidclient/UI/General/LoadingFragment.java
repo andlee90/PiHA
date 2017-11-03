@@ -1,4 +1,4 @@
-package com.andlee90.piha.piha_androidclient.UI.Controls;
+package com.andlee90.piha.piha_androidclient.UI.General;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

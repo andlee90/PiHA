@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.andlee90.piha.piha_androidclient.UI.General.LoadingFragment;
+
 class EditorPagerAdapter extends FragmentPagerAdapter
 {
     private final int PAGE_COUNT = 5;
@@ -29,7 +31,7 @@ class EditorPagerAdapter extends FragmentPagerAdapter
         }
         else
         {
-            return DevicesFragment.newInstance();
+            return LoadingFragment.newInstance();
         }
     }
 

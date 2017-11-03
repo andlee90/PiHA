@@ -26,7 +26,7 @@ public class EditorFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        ServerEditorActivity parentActivity = (ServerEditorActivity) getActivity();
+        ServerConfigActivity parentActivity = (ServerConfigActivity) getActivity();
         mServerItem = parentActivity.mServerItem;
     }
 
@@ -67,7 +67,7 @@ public class EditorFragment extends Fragment
 
             if(!name.equals("") && !address.equals("") && !port.equals(""))
             {
-                ServerEditorActivity parentActivity = (ServerEditorActivity) getActivity();
+                ServerConfigActivity parentActivity = (ServerConfigActivity) getActivity();
                 mServerItem = parentActivity.mServerItem;
                 Helper helper = new Helper(getActivity());
                 helper.updateServer(mServerItem.getId(), name, address, Integer.parseInt(port), username, password);

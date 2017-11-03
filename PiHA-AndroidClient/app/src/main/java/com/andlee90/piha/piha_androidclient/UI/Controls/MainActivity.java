@@ -16,17 +16,16 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
 import com.andlee90.piha.piha_androidclient.Networking.ServerConnectionService;
 import com.andlee90.piha.piha_androidclient.R;
 import com.andlee90.piha.piha_androidclient.UI.Configuration.ServerListActivity;
+import com.andlee90.piha.piha_androidclient.UI.General.WrapperFragment;
 
 import java.util.ArrayList;
 import java.util.List;

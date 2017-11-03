@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
+import com.andlee90.piha.piha_androidclient.UI.General.WrapperFragment;
 
 import java.util.List;
 
