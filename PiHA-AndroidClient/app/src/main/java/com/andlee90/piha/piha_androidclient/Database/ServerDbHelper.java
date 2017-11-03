@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class Helper extends SQLiteOpenHelper
+public class ServerDbHelper extends SQLiteOpenHelper
 {
     private static final String DATABASE_NAME = "servers.db";
     private static final int DATABASE_VERSION = 1;
@@ -18,7 +18,7 @@ public class Helper extends SQLiteOpenHelper
     private static final String SERVERS_COLUMN_USERNAME = "server_username";
     private static final String SERVERS_COLUMN_PASSWORD = "server_password";
 
-    public Helper(Context context)
+    public ServerDbHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

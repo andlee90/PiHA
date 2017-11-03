@@ -19,8 +19,8 @@ public class ServerItemLoader extends AsyncTaskLoader<ServerItem>
     @Override
     public ServerItem loadInBackground()
     {
-        Helper dbHelper = new Helper(mContext);
-        Cursor cursor = dbHelper.getServer(mServerId);
+        ServerDbHelper dbServerDbHelper = new ServerDbHelper(mContext);
+        Cursor cursor = dbServerDbHelper.getServer(mServerId);
         cursor.moveToFirst();
 
         return new ServerItem(cursor.getInt(cursor.getColumnIndex("_id")),

@@ -12,7 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.andlee90.piha.piha_androidclient.Database.Helper;
+import com.andlee90.piha.piha_androidclient.Database.ServerDbHelper;
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerItemLoader;
 import com.andlee90.piha.piha_androidclient.R;
@@ -82,8 +82,8 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
 
                 builder.setPositiveButton("Delete", (dialog, which) ->
                 {
-                    Helper helper = new Helper(this);
-                    helper.deleteServer(mServerId);
+                    ServerDbHelper serverDbHelper = new ServerDbHelper(this);
+                    serverDbHelper.deleteServer(mServerId);
                     finish();
                 });
                 builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());

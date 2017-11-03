@@ -20,8 +20,8 @@ public class ServerListLoader extends AsyncTaskLoader<List<ServerItem>>
     @Override
     public List<ServerItem> loadInBackground()
     {
-        Helper dbHelper = new Helper(mContext);
-        Cursor cursor = dbHelper.getAllServers();
+        ServerDbHelper dbServerDbHelper = new ServerDbHelper(mContext);
+        Cursor cursor = dbServerDbHelper.getAllServers();
 
         ArrayList<ServerItem> servers = new ArrayList<>();
 

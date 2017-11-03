@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.andlee90.piha.piha_androidclient.Networking.ServerConnectionService;
-import com.andlee90.piha.piha_androidclient.Database.Helper;
+import com.andlee90.piha.piha_androidclient.Database.ServerDbHelper;
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
 import com.andlee90.piha.piha_androidclient.R;
@@ -109,8 +109,8 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
 
                             if(!username.equals("") && !password.equals(""))
                             {
-                                Helper helper = new Helper(getApplicationContext());
-                                helper.insertServer(mServerName, mServerAddress, Integer.parseInt(mServerPort), username, password);
+                                ServerDbHelper serverDbHelper = new ServerDbHelper(getApplicationContext());
+                                serverDbHelper.insertServer(mServerName, mServerAddress, Integer.parseInt(mServerPort), username, password);
                                 recreate();
                             }
                             else

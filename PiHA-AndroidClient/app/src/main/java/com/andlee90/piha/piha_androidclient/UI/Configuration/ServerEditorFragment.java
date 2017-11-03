@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.andlee90.piha.piha_androidclient.Database.Helper;
+import com.andlee90.piha.piha_androidclient.Database.ServerDbHelper;
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.R;
 
@@ -69,8 +69,8 @@ public class ServerEditorFragment extends Fragment
             {
                 ServerConfigActivity parentActivity = (ServerConfigActivity) getActivity();
                 mServerItem = parentActivity.mServerItem;
-                Helper helper = new Helper(getActivity());
-                helper.updateServer(mServerItem.getId(), name, address, Integer.parseInt(port), username, password);
+                ServerDbHelper serverDbHelper = new ServerDbHelper(getActivity());
+                serverDbHelper.updateServer(mServerItem.getId(), name, address, Integer.parseInt(port), username, password);
 
                 Snackbar.make(view, mServerItem.getName() + "updated successfully" , Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
