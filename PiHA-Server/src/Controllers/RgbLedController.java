@@ -1,6 +1,6 @@
 package Controllers;
 
-import CommandObjects.RgbLedCommand;
+import CommandObjects.DeviceCommands.RgbLedCommand;
 import Database.Helper;
 import DeviceObjects.Device;
 import DeviceObjects.RgbLed;

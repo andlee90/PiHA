@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Hashtable;
 
 /**
- * Holds all info relating to a specifc user and serializes it for transport across a socket.
+ * Holds all info relating to a specific user and serializes it for transport across a socket.
  */
 public class User implements Serializable
 {

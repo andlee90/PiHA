@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
+import com.andlee90.piha.piha_androidclient.UI.Configuration.ServerConfigActivity;
 import com.andlee90.piha.piha_androidclient.UI.Controls.MainActivity;
 
 import java.io.IOException;
@@ -20,7 +21,10 @@ import java.util.concurrent.ExecutionException;
 import CommandObjects.Command;
 import DeviceObjects.Device;
 import DeviceObjects.DeviceList;
+import RoleObjects.RoleList;
+import RuleObjects.RuleList;
 import UserObjects.User;
+import UserObjects.UserList;
 
 /**
  * Manages all network activities via a series of AsyncTasks.
@@ -47,6 +51,15 @@ public class ServerConnectionService extends Service
         return mBinder;
     }
 
+    public boolean isConnected(int id)
+    {
+        if(sOutputTable.containsKey(id) && sInputTable.containsKey(id))
+        {
+            return true;
+        }
+        else return false;
+    }
+
     /**
      * Execution method for connecting to a server and receiving it's devices.
      */
@@ -62,6 +75,30 @@ public class ServerConnectionService extends Service
     public void issueCommand(Device device, Command command) throws ExecutionException, InterruptedException
     {
         new IssueCommandTask(device, command).execute();
+    }
+
+    /**
+     * Execution method for requesting users stored on a particular server.
+     */
+    public void getUsers(ServerItem server) throws ExecutionException, InterruptedException
+    {
+        new GetUsersTask(server).execute();
+    }
+
+    /**
+     * Execution method for requesting roles stored on a particular server.
+     */
+    public void getRoles(ServerItem server) throws ExecutionException, InterruptedException
+    {
+        new GetRolesTask(server).execute();
+    }
+
+    /**
+     * Execution method for requesting rules stored on a particular server.
+     */
+    public void getRules(ServerItem server) throws ExecutionException, InterruptedException
+    {
+        new GetRulesTask(server).execute();
     }
 
     /**
@@ -169,6 +206,138 @@ public class ServerConnectionService extends Service
                 Intent deviceIntent = new Intent(MainActivity.RECEIVE_DEVICE);
                 deviceIntent.putExtra("device", device);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(deviceIntent);
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Background task for receiving the users stored on a given server.
+     *
+     * Performs the following actions:
+     *
+     * 1) Get object streams from the corresponding table.
+     * 2) Write empty UserList to server and receive back updated UserList.
+     * 3) Send RECEIVE_USER_LIST broadcast.
+     */
+    private class GetUsersTask extends AsyncTask<Void, Void, Void>
+    {
+        private ServerItem server;
+
+        GetUsersTask(ServerItem server)
+        {
+            this.server = server;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            UserList users = new UserList();
+
+            try
+            {
+                ObjectOutputStream outputStream = sOutputTable.get(server.getId());
+                ObjectInputStream inputStream = sInputTable.get(server.getId());
+
+                outputStream.writeObject(users);
+                users = (UserList) inputStream.readObject();
+
+                Intent userListIntent = new Intent(ServerConfigActivity.RECEIVE_USER_LIST);
+                userListIntent.putExtra("users", users);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(userListIntent);
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Background task for receiving the roles stored on a given server.
+     *
+     * Performs the following actions:
+     *
+     * 1) Get object streams from the corresponding table.
+     * 2) Write empty RoleList to server and receive back updated RoleList.
+     * 3) Send RECEIVE_ROLE_LIST broadcast.
+     */
+    private class GetRolesTask extends AsyncTask<Void, Void, Void>
+    {
+        private ServerItem server;
+
+        GetRolesTask(ServerItem server)
+        {
+            this.server = server;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            RoleList roles = new RoleList();
+
+            try
+            {
+                ObjectOutputStream outputStream = sOutputTable.get(server.getId());
+                ObjectInputStream inputStream = sInputTable.get(server.getId());
+
+                outputStream.writeObject(roles);
+                roles = (RoleList) inputStream.readObject();
+
+                Intent roleListIntent = new Intent(ServerConfigActivity.RECEIVE_ROLE_LIST);
+                roleListIntent.putExtra("roles", roles);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(roleListIntent);
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Background task for receiving the rules stored on a given server.
+     *
+     * Performs the following actions:
+     *
+     * 1) Get object streams from the corresponding table.
+     * 2) Write empty RuleList to server and receive back updated RuleList.
+     * 3) Send RECEIVE_RULE_LIST broadcast.
+     */
+    private class GetRulesTask extends AsyncTask<Void, Void, Void>
+    {
+        private ServerItem server;
+
+        GetRulesTask(ServerItem server)
+        {
+            this.server = server;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            RuleList rules = new RuleList();
+
+            try
+            {
+                ObjectOutputStream outputStream = sOutputTable.get(server.getId());
+                ObjectInputStream inputStream = sInputTable.get(server.getId());
+
+                outputStream.writeObject(rules);
+                rules = (RuleList) inputStream.readObject();
+
+                Intent ruleListIntent = new Intent(ServerConfigActivity.RECEIVE_RULE_LIST);
+                ruleListIntent.putExtra("rules", rules);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(ruleListIntent);
             }
             catch (IOException | ClassNotFoundException e)
             {

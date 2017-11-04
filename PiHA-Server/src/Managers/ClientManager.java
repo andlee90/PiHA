@@ -6,7 +6,10 @@ import Controllers.DeviceControllerFactory;
 import Database.Helper;
 import DeviceObjects.Device;
 import DeviceObjects.DeviceList;
+import RoleObjects.RoleList;
+import RuleObjects.RuleList;
 import UserObjects.User;
+import UserObjects.UserList;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -57,9 +60,9 @@ public class ClientManager extends Thread
                 authenticatedUserRole = authenticatedUser.getRole();
 
                 int authenticatedUserRoleId = Helper.selectRoleIdByRoleName(authenticatedUser.getRole());
-                Hashtable<String, String> rules = Helper.selectRulesByRoleId(authenticatedUserRoleId);
+                Hashtable<String, String> userRules = Helper.selectRulesByRoleId(authenticatedUserRoleId);
 
-                authenticatedUser.setRules(rules);
+                authenticatedUser.setRules(userRules);
                 serverOutputStream.writeObject(authenticatedUser);
                 authenticatedUserAddress = socket.getRemoteSocketAddress().toString();
                 authenticatedUserAddress = authenticatedUserAddress.substring(1, authenticatedUserAddress.indexOf(':'));
@@ -77,6 +80,24 @@ public class ClientManager extends Thread
                         {
                             DeviceList devices = getDevices();
                             serverOutputStream.writeObject(devices);
+                        }
+
+                        else if (object instanceof UserList)
+                        {
+                            UserList users = getUsers();
+                            serverOutputStream.writeObject(users);
+                        }
+
+                        else if (object instanceof RuleList)
+                        {
+                            RuleList rules = getRules();
+                            serverOutputStream.writeObject(rules);
+                        }
+
+                        else if (object instanceof RoleList)
+                        {
+                            RoleList roles = getRoles();
+                            serverOutputStream.writeObject(roles);
                         }
 
                         else if (object instanceof Device)
@@ -176,6 +197,30 @@ public class ClientManager extends Thread
     private DeviceList getDevices()
     {
         return Helper.selectAllDevices();
+    }
+
+    /**
+     * @return A UserList object containing a List of all Users stored in the db.
+     */
+    private UserList getUsers()
+    {
+        return Helper.selectAllUsers();
+    }
+
+    /**
+     * @return A RoleList object containing a List of all Roles stored in the db.
+     */
+    private RoleList getRoles()
+    {
+        return Helper.selectAllRoles();
+    }
+
+    /**
+     * @return A RuleList object containing a List of all Rules stored in the db.
+     */
+    private RuleList getRules()
+    {
+        return Helper.selectAllRules();
     }
 
     /**

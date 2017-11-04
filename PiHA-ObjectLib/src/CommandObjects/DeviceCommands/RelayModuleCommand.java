@@ -1,4 +1,6 @@
-package CommandObjects;
+package CommandObjects.DeviceCommands;
+
+import CommandObjects.Command;
 
 /**
  * Provides an implementation of Command, used to define the specifications for a RelayModuleCommand.

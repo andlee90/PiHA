@@ -2,7 +2,12 @@ package Database;
 
 import DeviceObjects.*;
 import Managers.MainManager;
+import RoleObjects.Role;
+import RoleObjects.RoleList;
+import RuleObjects.Rule;
+import RuleObjects.RuleList;
 import UserObjects.User;
+import UserObjects.UserList;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -503,7 +508,7 @@ public class Helper
 
     /**
      * Return all devices currently stored in the db.
-     * @return A Devices object containing a List of of Devices in the db.
+     * @return A Devices object containing a List of Devices in the db.
      */
     public static DeviceList selectAllDevices()
     {
@@ -560,6 +565,102 @@ public class Helper
         }
 
         return devices;
+    }
+
+    /**
+     * Return all users currently stored in the db.
+     * @return A Users object containing a List of of Users in the db.
+     */
+    public static UserList selectAllUsers()
+    {
+        UserList users = new UserList();
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(getSelectAllUsers()))
+        {
+            while (rs.next())
+            {
+                User user = new User(rs.getInt("user_id"),
+                        rs.getString("user_username"),
+                        rs.getString("user_password"),
+                        rs.getString("user_email"),
+                        rs.getString("user_first_name"),
+                        rs.getString("user_last_name"),
+                        selectRoleById(rs.getInt("role_id")));
+
+                users.addUser(user);
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("> [" + MainManager.getDate() + "] All user selection failed");
+            System.out.println("> [" + MainManager.getDate() + "] " + e.getMessage());
+        }
+
+        return users;
+    }
+
+    /**
+     * Return all roles currently stored in the db.
+     * @return A RolesList object containing a List of Roles in the db.
+     */
+    public static RoleList selectAllRoles()
+    {
+        RoleList roles = new RoleList();
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(getSelectAllRoles()))
+        {
+            while (rs.next())
+            {
+                Role role = new Role(rs.getInt("role_id"),
+                        rs.getString("role_name"),
+                        rs.getInt("role_priority"));
+
+                roles.addRole(role);
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("> [" + MainManager.getDate() + "] All role selection failed");
+            System.out.println("> [" + MainManager.getDate() + "] " + e.getMessage());
+        }
+
+        return roles;
+    }
+
+    /**
+     * Return all rules currently stored in the db.
+     * @return A RulesList object containing a List of Rules in the db.
+     */
+    public static RuleList selectAllRules()
+    {
+        RuleList rules = new RuleList();
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(getSelectAllRules()))
+        {
+            while (rs.next())
+            {
+                String role = selectRoleById(rs.getInt("role_id"));
+                String permission = selectPermissionValueByPermissionId(rs.getInt("permission_id"));
+                String device = selectDeviceNameByDeviceId(rs.getInt("device_id"));
+
+                Rule rule = new Rule(rs.getInt("rule_id"), role, permission, device);
+
+                rules.addRule(rule);
+            }
+        }
+        catch (SQLException e)
+        {
+            System.out.println("> [" + MainManager.getDate() + "] All rule selection failed");
+            System.out.println("> [" + MainManager.getDate() + "] " + e.getMessage());
+        }
+
+        return rules;
     }
 
     /**

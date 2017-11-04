@@ -2,13 +2,10 @@ package com.andlee90.piha.piha_androidclient.UI.Configuration;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -22,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.andlee90.piha.piha_androidclient.Networking.ServerConnectionService;
 import com.andlee90.piha.piha_androidclient.Database.ServerDbHelper;
 import com.andlee90.piha.piha_androidclient.Database.ServerItem;
 import com.andlee90.piha.piha_androidclient.Database.ServerListLoader;
@@ -38,9 +34,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
     private String mServerName;
     private String mServerAddress;
     private String mServerPort;
-
-    ServerConnectionService mService;
-    boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -129,26 +122,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    protected void onStart()
-    {
-        super.onStart();
-
-        Intent intent = new Intent(this, ServerConnectionService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop()
-    {
-        super.onStop();
-        if (mBound)
-        {
-            unbindService(mConnection);
-            mBound = false;
-        }
-    }
-
-    @Override
     public Loader<List<ServerItem>> onCreateLoader(int id, Bundle args)
     {
         return new ServerListLoader(getApplicationContext());
@@ -174,24 +147,6 @@ public class ServerListActivity extends AppCompatActivity implements View.OnClic
     {
         //TODO: Implement method.
     }
-
-    private ServiceConnection mConnection = new ServiceConnection()
-    {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service)
-        {
-            ServerConnectionService.ServerConnectionBinder binder = (ServerConnectionService.ServerConnectionBinder) service;
-            mService = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0)
-        {
-            unbindService(mConnection);
-            mBound = false;
-        }
-    };
 
     private class ServerItemArrayAdapter extends ArrayAdapter<ServerItem>
     {

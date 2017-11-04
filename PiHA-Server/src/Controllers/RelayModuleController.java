@@ -1,6 +1,6 @@
 package Controllers;
 
-import CommandObjects.RelayModuleCommand;
+import CommandObjects.DeviceCommands.RelayModuleCommand;
 import Database.Helper;
 import DeviceObjects.Device;
 import DeviceObjects.RelayModule;

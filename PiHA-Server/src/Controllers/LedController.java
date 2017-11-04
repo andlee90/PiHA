@@ -1,6 +1,6 @@
 package Controllers;
 
-import CommandObjects.LedCommand;
+import CommandObjects.DeviceCommands.LedCommand;
 import Database.Helper;
 import DeviceObjects.Device;
 import DeviceObjects.Led;

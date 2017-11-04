@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import CommandObjects.LedCommand;
-import CommandObjects.RelayModuleCommand;
-import CommandObjects.RgbLedCommand;
+import CommandObjects.DeviceCommands.LedCommand;
+import CommandObjects.DeviceCommands.RelayModuleCommand;
+import CommandObjects.DeviceCommands.RgbLedCommand;
 import DeviceObjects.Device;
 import DeviceObjects.Led;
 import DeviceObjects.RelayModule;
@@ -198,11 +198,11 @@ public class DeviceListFragment extends ListFragment
                                 RgbLedCommand.RgbLedCommandType ct;
                                 if (viewHolder.getBlink().isChecked()) {
                                     if (!viewHolder.getDeviceSwitch().isChecked()) {
-                                        ct = rgbLedColor.getColorBlinkCommand(color);
+                                        ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                     } else {
-                                        ct = rgbLedColor.getColorToggleCommand(color);
+                                        ct = rgbLedColor.getColorBlinkCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                     }
@@ -307,10 +307,10 @@ public class DeviceListFragment extends ListFragment
                     RgbLedCommand.RgbLedCommandType.BLINK_WHITE };
 
             private RgbLedCommand.RgbLedCommandType[] toggleCommands = {
-                    RgbLedCommand.RgbLedCommandType.BLINK_RED, RgbLedCommand.RgbLedCommandType.BLINK_GREEN,
-                    RgbLedCommand.RgbLedCommandType.BLINK_BLUE, RgbLedCommand.RgbLedCommandType.BLINK_MAGENTA,
-                    RgbLedCommand.RgbLedCommandType.BLINK_YELLOW, RgbLedCommand.RgbLedCommandType.BLINK_CYAN,
-                    RgbLedCommand.RgbLedCommandType.BLINK_WHITE };
+                    RgbLedCommand.RgbLedCommandType.TOGGLE_RED, RgbLedCommand.RgbLedCommandType.TOGGLE_GREEN,
+                    RgbLedCommand.RgbLedCommandType.TOGGLE_BLUE, RgbLedCommand.RgbLedCommandType.TOGGLE_MAGENTA,
+                    RgbLedCommand.RgbLedCommandType.TOGGLE_YELLOW, RgbLedCommand.RgbLedCommandType.TOGGLE_CYAN,
+                    RgbLedCommand.RgbLedCommandType.TOGGLE_WHITE };
 
             private RgbLed.RgbLedMode[] blinkModes = {
                     RgbLed.RgbLedMode.BLINKING_RED, RgbLed.RgbLedMode.BLINKING_GREEN,
@@ -324,12 +324,12 @@ public class DeviceListFragment extends ListFragment
                     RgbLed.RgbLedMode.ON_YELLOW, RgbLed.RgbLedMode.ON_CYAN,
                     RgbLed.RgbLedMode.ON_WHITE };
 
-            public RgbLedCommand.RgbLedCommandType getColorBlinkCommand(int color)
+            RgbLedCommand.RgbLedCommandType getColorBlinkCommand(int color)
             {
                 RgbLedCommand.RgbLedCommandType ct  = null;
                 for(int i = 0; i < colors.length; i++)
                 {
-                    if(colors[i] == color)
+                    if(getResources().getColor(colors[i]) == color)
                     {
                         ct = blinkCommands[i];
                     }
@@ -337,12 +337,12 @@ public class DeviceListFragment extends ListFragment
                 return ct;
             }
 
-            public RgbLedCommand.RgbLedCommandType getColorToggleCommand(int color)
+            RgbLedCommand.RgbLedCommandType getColorToggleCommand(int color)
             {
                 RgbLedCommand.RgbLedCommandType ct  = null;
                 for(int i = 0; i < colors.length; i++)
                 {
-                    if(colors[i] == color)
+                    if(getResources().getColor(colors[i]) == color)
                     {
                         ct = toggleCommands[i];
                     }
@@ -350,9 +350,9 @@ public class DeviceListFragment extends ListFragment
                 return ct;
             }
 
-            public int getColor(RgbLed.RgbLedMode mode)
+            int getColor(RgbLed.RgbLedMode mode)
             {
-                int color = R.color.cyan;
+                int color = 0;
                 for(int i = 0; i < onModes.length; i++)
                 {
                     if(onModes[i] == mode || blinkModes[i] == mode)

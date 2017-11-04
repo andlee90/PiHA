@@ -135,6 +135,21 @@ class Queries
         return "SELECT device_id,device_name,device_type,device_status,device_mode FROM devices";
     }
 
+    static String getSelectAllUsers()
+    {
+        return "SELECT user_id,user_username,user_password,user_email,user_first_name,user_last_name,role_id FROM users";
+    }
+
+    static String getSelectAllRoles()
+    {
+        return "SELECT role_id,role_name,role_priority FROM roles";
+    }
+
+    static String getSelectAllRules()
+    {
+        return "SELECT rule_id,role_id,permission_id,device_id FROM rules";
+    }
+
     static String getSelectDevicePinIdsByDeviceId()
     {
         return "SELECT pin_id FROM pin_assignments WHERE device_id = ?";
