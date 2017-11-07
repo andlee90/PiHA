@@ -21,9 +21,7 @@ import com.andlee90.piha.piha_androidclient.UI.Controls.ViewHolders.ViewHolder;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import CommandObjects.DeviceCommands.LedCommand;
@@ -53,7 +51,6 @@ public class DeviceListFragment extends ListFragment
     {
         super.onAttach(context);
         isAttached = true;
-
         mContext = context;
     }
 
@@ -73,7 +70,6 @@ public class DeviceListFragment extends ListFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-
         mAdapter = new DeviceListArrayAdapter(mContext,
                 android.R.layout.simple_list_item_1, mDevices);
         setListAdapter(mAdapter);
@@ -83,13 +79,11 @@ public class DeviceListFragment extends ListFragment
     public void onListItemClick(ListView l, View v, int position, long id)
     {
         super.onListItemClick(l, v, position, id);
-
         RelativeLayout rl = v.findViewById(R.id.hidden_view);
 
         if(rl.getVisibility() == View.GONE)
         {
             rl.setVisibility(View.VISIBLE);
-
                 for(int i = 0; i < l.getCount(); i++)
                 {
                     View otherView = l.getChildAt(i);
@@ -100,56 +94,63 @@ public class DeviceListFragment extends ListFragment
                     }
                 }
         }
-        else
-        {
-            rl.setVisibility(View.GONE);
-        }
+        else rl.setVisibility(View.GONE);
     }
 
     public void setListView(ArrayList<Device> devices)
     {
         mDevices.addAll(devices);
-        if(isAttached)
-        {
-            mAdapter.notifyDataSetChanged();
-        }
+        if(isAttached) mAdapter.notifyDataSetChanged();
     }
 
     private class DeviceListArrayAdapter extends ArrayAdapter<Device>
     {
         private LayoutInflater mInflater;
         private List<Device> devices = null;
-        private Map<Integer, View> views = new HashMap<Integer, View>();
-
 
         DeviceListArrayAdapter(Context context, int resourceId, List<Device> devices)
         {
             super(context, resourceId, devices);
-
             this.devices = devices;
             mInflater = LayoutInflater.from(context);
         }
 
+        @Override
+        public int getViewTypeCount()
+        {
+            return 4;
+        }
+
+        @Override
+        public int getItemViewType(int position)
+        {
+            // This may be a cop-out, more research is needed.
+            return IGNORE_ITEM_VIEW_TYPE;
+        }
+
         @NonNull
         @Override
-        public View getView(final int position, View convertView, @NonNull ViewGroup parent)
+        public View getView(int position, View convertView, @NonNull ViewGroup parent)
         {
             final ViewHolder viewHolder;
-            View view = views.get(position);
+            Device device = devices.get(position);
 
-            if (view == null) {
-                Device device = devices.get(position);
-
-                switch (device.getDeviceType()) {
+            if (convertView == null)
+            {
+                switch (device.getDeviceType())
+                {
                     case LED:
-                        view = mInflater.inflate(R.layout.list_led_items, null);
-                        viewHolder = new LedViewHolder(view);
+                        convertView = mInflater.inflate(R.layout.list_led_items, null);
+                        viewHolder = new LedViewHolder(convertView);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
-                        viewHolder.getServerId().setText("" + device.getHostServerId());
 
-                        if (device.getDeviceMode() == Led.LedMode.OFF)
+                        if (device.getDeviceMode() == Led.LedMode.OFF) {
                             viewHolder.getDeviceSwitch().setChecked(false);
-                        else viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
+                        } else {
+                            viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
+                        }
 
                         viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
                             try {
@@ -157,37 +158,50 @@ public class DeviceListFragment extends ListFragment
                                     if (!viewHolder.getDeviceSwitch().isChecked()) {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.TOGGLE));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
+
                                     } else {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.BLINK));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
+
                                     }
                                 } else {
-                                    ((MainActivity) getActivity()).mService.issueCommand(device,
-                                            new LedCommand(LedCommand.LedCommandType.TOGGLE));
+                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new LedCommand(LedCommand.LedCommandType.TOGGLE));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
+
+                                    } else {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new LedCommand(LedCommand.LedCommandType.TOGGLE));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
+                                    }
                                 }
                             } catch (ExecutionException | InterruptedException e) {
                                 e.printStackTrace();
                             }
                         });
-                        views.put(position, view);
+                        convertView.setTag(viewHolder);
                         break;
 
                     case RGB_LED:
-
+                        convertView = mInflater.inflate(R.layout.list_rgb_led_items, null);
+                        viewHolder = new RgbLedViewHolder(convertView);
                         RgbLedColor rgbLedColor = new RgbLedColor();
-                        view = mInflater.inflate(R.layout.list_rgb_led_items, null);
-                        viewHolder = new RgbLedViewHolder(view);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
-                        viewHolder.getServerId().setText("" + device.getHostServerId());
 
                         if (device.getDeviceMode() == RgbLed.RgbLedMode.OFF) {
                             viewHolder.getColorSelectButton().setTextColor(getResources().getColor(R.color.white));
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
                             viewHolder.getDeviceSwitch().setChecked(false);
                             viewHolder.getColorSelectButton().setEnabled(true);
                         } else {
                             int c = rgbLedColor.getColor((RgbLed.RgbLedMode) device.getDeviceMode());
                             viewHolder.getColorSelectButton().setTextColor(
                                     getResources().getColor(c));
+                            int i = rgbLedColor.getImage(viewHolder.getColorSelectButton().getCurrentTextColor());
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(i));
                             viewHolder.getDeviceSwitch().setChecked(true);
                             viewHolder.getColorSelectButton().setEnabled(false);
                         }
@@ -195,24 +209,38 @@ public class DeviceListFragment extends ListFragment
                         viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
                             try {
                                 int color = viewHolder.getColorSelectButton().getCurrentTextColor();
+                                int i = rgbLedColor.getImage(color);
                                 RgbLedCommand.RgbLedCommandType ct;
                                 if (viewHolder.getBlink().isChecked()) {
                                     if (!viewHolder.getDeviceSwitch().isChecked()) {
                                         ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
+
                                     } else {
                                         ct = rgbLedColor.getColorBlinkCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(i));
+
                                     }
                                 } else {
-                                    ct = rgbLedColor.getColorToggleCommand(color);
-                                    ((MainActivity) getActivity()).mService.issueCommand(device,
-                                            new RgbLedCommand(ct));
+                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+                                        ct = rgbLedColor.getColorToggleCommand(color);
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new RgbLedCommand(ct));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
+
+                                    } else {
+                                        ct = rgbLedColor.getColorToggleCommand(color);
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new RgbLedCommand(ct));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(i));
+                                    }
                                 }
 
-                                if(viewHolder.getDeviceSwitch().isChecked())
+                                if (viewHolder.getDeviceSwitch().isChecked())
                                     viewHolder.getColorSelectButton().setEnabled(false);
                                 else viewHolder.getColorSelectButton().setEnabled(true);
 
@@ -227,44 +255,52 @@ public class DeviceListFragment extends ListFragment
                                 .setOutlineWidth(1)
                                 .setSelectedColor(viewHolder.getColorSelectButton().getCurrentTextColor())
                                 .setOnColorSelectedListener((positiveResult, color) -> {
-                                    if(positiveResult)
-                                    {
+                                    if (positiveResult) {
                                         viewHolder.getColorSelectButton().setTextColor(color);
                                     }
                                 }).build().show(getFragmentManager(), "color_picker"));
-                        views.put(position, view);
+                        convertView.setTag(viewHolder);
                         break;
 
                     case RELAY_MOD:
-                        view = mInflater.inflate(R.layout.list_relay_mod_items, null);
-                        viewHolder = new RelayModuleViewHolder(view);
-
+                        convertView = mInflater.inflate(R.layout.list_relay_mod_items, null);
+                        viewHolder = new RelayModuleViewHolder(convertView);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
-                        viewHolder.getServerId().setText("" + device.getHostServerId());
 
                         // Somehow, the logic is backwards for the relay modules. I'll have to
                         // re-wire them at some point.
-                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
+                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF)) {
                             viewHolder.getDeviceSwitch().setChecked(false);
-                        else viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_off));
+                        } else {
+                            viewHolder.getDeviceSwitch().setChecked(true);
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_on));
+                        }
 
                         viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
                             try {
-                                ((MainActivity)getActivity()).mService.issueCommand(device,
-                                        new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
+                                if (!viewHolder.getDeviceSwitch().isChecked()) {
+                                    ((MainActivity) getActivity()).mService.issueCommand(device,
+                                            new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
+                                    viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_off));
+                                } else {
+                                    ((MainActivity) getActivity()).mService.issueCommand(device,
+                                            new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
+                                    viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_on));
+                                }
+
                             } catch (ExecutionException | InterruptedException e) {
                                 e.printStackTrace();
                             }
                         });
-                        views.put(position, view);
+                        convertView.setTag(viewHolder);
                         break;
 
                     case STEP_MOTOR:
-                        view = mInflater.inflate(R.layout.list_stepper_items, null);
-                        viewHolder = new StepperMotorViewHolder(view);
-
+                        convertView = mInflater.inflate(R.layout.list_stepper_items, null);
+                        viewHolder = new StepperMotorViewHolder(convertView);
+                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
                         viewHolder.getDeviceName().setText(device.getDeviceName());
-                        viewHolder.getServerId().setText("" + device.getHostServerId());
 
                         if (device.getDeviceMode() == StepperMotor.StepperMotorMode.OFF)
                             viewHolder.getDeviceSwitch().setChecked(false);
@@ -287,18 +323,28 @@ public class DeviceListFragment extends ListFragment
                             } catch (ExecutionException | InterruptedException e) {
                                 e.printStackTrace();
                             }
-                        });*/
+                        });
                         views.put(position, view);
-                        break;
+                        break;*/
+                        convertView.setTag(viewHolder);
                 }
             }
-            return view;
+            else
+            {
+                viewHolder = (ViewHolder)convertView.getTag();
+            }
+
+            return convertView;
         }
 
         private class RgbLedColor
         {
             private int[] colors = {R.color.red, R.color.green, R.color.blue, R.color.magenta,
                     R.color.yellow, R.color.cyan, R.color.white};
+
+            private int[] images = {R.drawable.rgb_red, R.drawable.rgb_green, R.drawable.rgb_blue,
+                    R.drawable.rgb_magenta, R.drawable.rgb_yellow, R.drawable.rgb_cyan,
+                    R.drawable.rgb_white};
 
             private RgbLedCommand.RgbLedCommandType[] blinkCommands = {
                     RgbLedCommand.RgbLedCommandType.BLINK_RED, RgbLedCommand.RgbLedCommandType.BLINK_GREEN,
@@ -348,6 +394,19 @@ public class DeviceListFragment extends ListFragment
                     }
                 }
                 return ct;
+            }
+
+            int getImage(int color)
+            {
+                int image = 0;
+                for(int i = 0; i < colors.length; i++)
+                {
+                    if(getResources().getColor(colors[i]) == color)
+                    {
+                        image = images[i];
+                    }
+                }
+                return image;
             }
 
             int getColor(RgbLed.RgbLedMode mode)
