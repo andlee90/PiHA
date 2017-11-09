@@ -232,6 +232,19 @@ class BuildVariants
         System.out.println("> [" + MainManager.getDate() + "] RGBLED assigned to pin 21, 22 & 23");
         System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for RGBLED");
         System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for RGBLED\n");
+
+        Helper.insertDevice( "MOTOR", "STEP_MOTOR", "AVAILABLE", "CLOSED_UP");
+        Helper.insertPinAssignment(29, "MOTOR");
+        Helper.insertPinAssignment(27, "MOTOR");
+        Helper.insertPinAssignment(25, "MOTOR");
+        Helper.insertPinAssignment(28, "MOTOR");
+        Helper.insertRule("ADMIN", "MODIFY", "MOTOR");
+        Helper.insertRule("USER", "VIEW_ONLY", "MOTOR");
+        Helper.insertRule("RESTRICTED_USER", "NONE", "MOTOR");
+        System.out.println("> [" + MainManager.getDate() + "] Default device MOTOR added to devices table");
+        System.out.println("> [" + MainManager.getDate() + "] MOTOR assigned to pins 29, 27, 25 & 28");
+        System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for MOTOR");
+        System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for MOTOR\n");
     }
 
     /**

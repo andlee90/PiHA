@@ -25,16 +25,16 @@ public class RelayModuleController extends DeviceController
     {
         this.device = (RelayModule) device;
 
-        gpio = GpioFactory.getInstance();
-        pin = gpio.provisionDigitalOutputPin(MainManager.getGpioPin(device.getDevicePins().get(0)),
+        this.gpio = GpioFactory.getInstance();
+        this.pin = this.gpio.provisionDigitalOutputPin(MainManager.getGpioPin(device.getDevicePins().get(0)),
                 device.getDeviceName(), PinState.LOW);
-        pin.setShutdownOptions(true, PinState.LOW);
+        this.pin.setShutdownOptions(true, PinState.LOW);
     }
 
     @Override
     public boolean isAvailable()
     {
-        return device.getDeviceStatus().equals(Device.DeviceStatus.AVAILABLE);
+        return this.device.getDeviceStatus().equals(Device.DeviceStatus.AVAILABLE);
     }
 
     @Override

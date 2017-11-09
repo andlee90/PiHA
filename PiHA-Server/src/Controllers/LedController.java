@@ -25,16 +25,16 @@ public class LedController extends DeviceController
     {
         this.device = (Led) device;
 
-        gpio = GpioFactory.getInstance();
-        pin = gpio.provisionDigitalOutputPin(MainManager.getGpioPin(device.getDevicePins().get(0)),
+        this.gpio = GpioFactory.getInstance();
+        this.pin = this.gpio.provisionDigitalOutputPin(MainManager.getGpioPin(device.getDevicePins().get(0)),
                 device.getDeviceName(), PinState.LOW);
-        pin.setShutdownOptions(true, PinState.LOW);
+        this.pin.setShutdownOptions(true, PinState.LOW);
     }
 
     @Override
     public boolean isAvailable()
     {
-        return device.getDeviceStatus().equals(Device.DeviceStatus.AVAILABLE);
+        return this.device.getDeviceStatus().equals(Device.DeviceStatus.AVAILABLE);
     }
 
     @Override
@@ -49,13 +49,11 @@ public class LedController extends DeviceController
                 pin.setState(PinState.LOW);
                 device.setDeviceMode(Led.LedMode.OFF);
             }
-
             else if (device.getDeviceMode() == Led.LedMode.ON)
             {
                 pin.toggle();
                 device.setDeviceMode(Led.LedMode.OFF);
             }
-
             else if (device.getDeviceMode() == Led.LedMode.OFF)
             {
                 pin.toggle();
@@ -70,9 +68,7 @@ public class LedController extends DeviceController
         else if (ct == LedCommand.LedCommandType.BLINK)
         {
             device.setDeviceMode(Led.LedMode.BLINKING);
-
             pin.blink(100);
-
             System.out.println("> [" + MainManager.getDate() + "] "
                     + device.getDeviceName() + " on "
                     + device.getDevicePins().get(0) + " is "

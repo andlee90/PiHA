@@ -96,7 +96,7 @@ public class MainManager
                     }
                     else if (d instanceof StepperMotor)
                     {
-                        d.setDeviceMode(StepperMotor.StepperMotorMode.OFF);
+                        d.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_UP);
                         d.setDeviceStatus(Device.DeviceStatus.AVAILABLE);
 
                         Helper.updateDevice(d.getDeviceId(),
