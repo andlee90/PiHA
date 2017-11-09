@@ -8,6 +8,7 @@ import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -21,12 +22,15 @@ import com.andlee90.piha.piha_androidclient.UI.Controls.ViewHolders.ViewHolder;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import CommandObjects.DeviceCommands.LedCommand;
 import CommandObjects.DeviceCommands.RelayModuleCommand;
 import CommandObjects.DeviceCommands.RgbLedCommand;
+import CommandObjects.DeviceCommands.StepperMotorCommand;
 import DeviceObjects.Device;
 import DeviceObjects.Led;
 import DeviceObjects.RelayModule;
@@ -107,12 +111,13 @@ public class DeviceListFragment extends ListFragment
     {
         private LayoutInflater mInflater;
         private List<Device> devices = null;
+        private Map<Integer, View> views = new HashMap<Integer, View>();
 
         DeviceListArrayAdapter(Context context, int resourceId, List<Device> devices)
         {
             super(context, resourceId, devices);
             this.devices = devices;
-            mInflater = LayoutInflater.from(context);
+            this.mInflater = LayoutInflater.from(context);
         }
 
         @Override
@@ -133,70 +138,88 @@ public class DeviceListFragment extends ListFragment
         public View getView(int position, View convertView, @NonNull ViewGroup parent)
         {
             final ViewHolder viewHolder;
-            Device device = devices.get(position);
+            final Device device = devices.get(position);
 
-            if (convertView == null)
+            View view = views.get(position);
+
+            if (view == null)
             {
                 switch (device.getDeviceType())
                 {
                     case LED:
-                        convertView = mInflater.inflate(R.layout.list_led_items, null);
-                        viewHolder = new LedViewHolder(convertView);
+                        view = mInflater.inflate(R.layout.list_led_items, null);
+                        viewHolder = new LedViewHolder(view);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
 
-                        if (device.getDeviceMode() == Led.LedMode.OFF) {
+                        if (device.getDeviceMode() == Led.LedMode.OFF)
+                        {
                             viewHolder.getDeviceSwitch().setChecked(false);
                             viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
-                        } else {
+                        }
+                        else
+                        {
                             viewHolder.getDeviceSwitch().setChecked(true);
                             viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
                         }
 
-                        viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
-                            try {
-                                if (viewHolder.getBlink().isChecked()) {
-                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+                        viewHolder.getDeviceSwitch().setOnClickListener(view1 ->
+                        {
+                            try
+                            {
+                                if (viewHolder.getBlink().isChecked())
+                                {
+                                    if (!viewHolder.getDeviceSwitch().isChecked())
+                                    {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.TOGGLE));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
-
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.BLINK));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
-
                                     }
-                                } else {
-                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+                                }
+                                else
+                                {
+                                    if (!viewHolder.getDeviceSwitch().isChecked())
+                                    {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.TOGGLE));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_off));
-
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new LedCommand(LedCommand.LedCommandType.TOGGLE));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.led_blue));
                                     }
                                 }
-                            } catch (ExecutionException | InterruptedException e) {
+                            }
+                            catch (ExecutionException | InterruptedException e)
+                            {
                                 e.printStackTrace();
                             }
                         });
-                        convertView.setTag(viewHolder);
+                        views.put(position, view);
                         break;
 
                     case RGB_LED:
-                        convertView = mInflater.inflate(R.layout.list_rgb_led_items, null);
-                        viewHolder = new RgbLedViewHolder(convertView);
+                        view = mInflater.inflate(R.layout.list_rgb_led_items, null);
+                        viewHolder = new RgbLedViewHolder(view);
                         RgbLedColor rgbLedColor = new RgbLedColor();
                         viewHolder.getDeviceName().setText(device.getDeviceName());
 
-                        if (device.getDeviceMode() == RgbLed.RgbLedMode.OFF) {
+                        if (device.getDeviceMode() == RgbLed.RgbLedMode.OFF)
+                        {
                             viewHolder.getColorSelectButton().setTextColor(getResources().getColor(R.color.white));
                             viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
                             viewHolder.getDeviceSwitch().setChecked(false);
                             viewHolder.getColorSelectButton().setEnabled(true);
-                        } else {
+                        }
+                        else
+                        {
                             int c = rgbLedColor.getColor((RgbLed.RgbLedMode) device.getDeviceMode());
                             viewHolder.getColorSelectButton().setTextColor(
                                     getResources().getColor(c));
@@ -206,33 +229,42 @@ public class DeviceListFragment extends ListFragment
                             viewHolder.getColorSelectButton().setEnabled(false);
                         }
 
-                        viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
-                            try {
+                        viewHolder.getDeviceSwitch().setOnClickListener(view1 ->
+                        {
+                            try
+                            {
                                 int color = viewHolder.getColorSelectButton().getCurrentTextColor();
                                 int i = rgbLedColor.getImage(color);
                                 RgbLedCommand.RgbLedCommandType ct;
-                                if (viewHolder.getBlink().isChecked()) {
-                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+
+                                if (viewHolder.getBlink().isChecked())
+                                {
+                                    if (!viewHolder.getDeviceSwitch().isChecked())
+                                    {
                                         ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
-
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         ct = rgbLedColor.getColorBlinkCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(i));
-
                                     }
-                                } else {
-                                    if (!viewHolder.getDeviceSwitch().isChecked()) {
+                                }
+                                else
+                                {
+                                    if (!viewHolder.getDeviceSwitch().isChecked())
+                                    {
                                         ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
                                         viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.rgb_off));
-
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         ct = rgbLedColor.getColorToggleCommand(color);
                                         ((MainActivity) getActivity()).mService.issueCommand(device,
                                                 new RgbLedCommand(ct));
@@ -240,11 +272,12 @@ public class DeviceListFragment extends ListFragment
                                     }
                                 }
 
-                                if (viewHolder.getDeviceSwitch().isChecked())
-                                    viewHolder.getColorSelectButton().setEnabled(false);
+                                if (viewHolder.getDeviceSwitch().isChecked()) viewHolder.getColorSelectButton().setEnabled(false);
                                 else viewHolder.getColorSelectButton().setEnabled(true);
 
-                            } catch (ExecutionException | InterruptedException e) {
+                            }
+                            catch (ExecutionException | InterruptedException e)
+                            {
                                 e.printStackTrace();
                             }
                         });
@@ -254,87 +287,148 @@ public class DeviceListFragment extends ListFragment
                                 .setDismissOnColorSelected(true)
                                 .setOutlineWidth(1)
                                 .setSelectedColor(viewHolder.getColorSelectButton().getCurrentTextColor())
-                                .setOnColorSelectedListener((positiveResult, color) -> {
-                                    if (positiveResult) {
+                                .setOnColorSelectedListener((positiveResult, color) ->
+                                {
+                                    if (positiveResult)
+                                    {
                                         viewHolder.getColorSelectButton().setTextColor(color);
                                     }
                                 }).build().show(getFragmentManager(), "color_picker"));
-                        convertView.setTag(viewHolder);
+                        views.put(position, view);
                         break;
 
                     case RELAY_MOD:
-                        convertView = mInflater.inflate(R.layout.list_relay_mod_items, null);
-                        viewHolder = new RelayModuleViewHolder(convertView);
+                        view = mInflater.inflate(R.layout.list_relay_mod_items, null);
+                        viewHolder = new RelayModuleViewHolder(view);
                         viewHolder.getDeviceName().setText(device.getDeviceName());
 
                         // Somehow, the logic is backwards for the relay modules. I'll have to
                         // re-wire them at some point.
-                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF)) {
+                        if (!(device.getDeviceMode() == RelayModule.RelayModuleMode.OFF))
+                        {
                             viewHolder.getDeviceSwitch().setChecked(false);
                             viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_off));
-                        } else {
+                        }
+                        else
+                        {
                             viewHolder.getDeviceSwitch().setChecked(true);
                             viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_on));
                         }
 
-                        viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
-                            try {
-                                if (!viewHolder.getDeviceSwitch().isChecked()) {
+                        viewHolder.getDeviceSwitch().setOnClickListener(view1 ->
+                        {
+                            try
+                            {
+                                if (!viewHolder.getDeviceSwitch().isChecked())
+                                {
                                     ((MainActivity) getActivity()).mService.issueCommand(device,
                                             new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
                                     viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_off));
-                                } else {
+                                }
+                                else
+                                {
                                     ((MainActivity) getActivity()).mService.issueCommand(device,
                                             new RelayModuleCommand(RelayModuleCommand.RelayModuleCommandType.TOGGLE));
                                     viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.relay_on));
                                 }
-
-                            } catch (ExecutionException | InterruptedException e) {
-                                e.printStackTrace();
                             }
-                        });
-                        convertView.setTag(viewHolder);
-                        break;
-
-                    case STEP_MOTOR:
-                        convertView = mInflater.inflate(R.layout.list_stepper_items, null);
-                        viewHolder = new StepperMotorViewHolder(convertView);
-                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
-                        viewHolder.getDeviceName().setText(device.getDeviceName());
-
-                        if (device.getDeviceMode() == StepperMotor.StepperMotorMode.OFF)
-                            viewHolder.getDeviceSwitch().setChecked(false);
-                        else viewHolder.getDeviceSwitch().setChecked(true);
-
-                        /*viewHolder.getDeviceSwitch().setOnClickListener(view1 -> {
-                            try {
-                                if(viewHolder.getBlink().isChecked()) {
-                                    if(!viewHolder.getDeviceSwitch().isChecked()) {
-                                        ((MainActivity)getActivity()).mService.issueCommand(device,
-                                                new LedCommand(LedCommand.LedCommandType.TOGGLE));
-                                    } else {
-                                        ((MainActivity)getActivity()).mService.issueCommand(device,
-                                                new LedCommand(LedCommand.LedCommandType.BLINK));
-                                    }
-                                } else {
-                                    ((MainActivity)getActivity()).mService.issueCommand(device,
-                                            new LedCommand(LedCommand.LedCommandType.TOGGLE));
-                                }
-                            } catch (ExecutionException | InterruptedException e) {
+                            catch (ExecutionException | InterruptedException e)
+                            {
                                 e.printStackTrace();
                             }
                         });
                         views.put(position, view);
-                        break;*/
-                        convertView.setTag(viewHolder);
+                        break;
+
+                    case STEP_MOTOR:
+                        view = mInflater.inflate(R.layout.list_stepper_items, null);
+                        viewHolder = new StepperMotorViewHolder(view);
+                        viewHolder.getDeviceName().setText(device.getDeviceName());
+                        String[] options = new String[] {"Close Up", "Half Up", "Open", "Half Down", "Close Down"};
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item, options);
+                        viewHolder.getModeSelectSpinner().setAdapter(adapter);
+
+                        if ((device.getDeviceMode() == StepperMotor.StepperMotorMode.CLOSED_UP))
+                        {
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
+                            viewHolder.getModeSelectSpinner().setSelection(0);
+                        }
+                        else if (device.getDeviceMode() == StepperMotor.StepperMotorMode.HALF_UP)
+                        {
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_half));
+                            viewHolder.getModeSelectSpinner().setSelection(1);
+                        }
+                        else if (device.getDeviceMode() == StepperMotor.StepperMotorMode.OPEN)
+                        {
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_open));
+                            viewHolder.getModeSelectSpinner().setSelection(2);
+                        }
+                        else if (device.getDeviceMode() == StepperMotor.StepperMotorMode.HALF_DOWN)
+                        {
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_half));
+                            viewHolder.getModeSelectSpinner().setSelection(3);
+                        }
+                        else if ((device.getDeviceMode() == StepperMotor.StepperMotorMode.CLOSED_DOWN))
+                        {
+                            viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
+                            viewHolder.getModeSelectSpinner().setSelection(4);
+                        }
+
+                        viewHolder.getModeSelectSpinner().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+                        {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+                            {
+                                try
+                                {
+                                    if(viewHolder.getModeSelectSpinner().getSelectedItem().toString().equals(options[0]))
+                                    {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new StepperMotorCommand(StepperMotorCommand.StepperMotorCommandType.CLOSE_UP));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
+                                    }
+                                    else if(viewHolder.getModeSelectSpinner().getSelectedItem().equals(options[1]))
+                                    {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new StepperMotorCommand(StepperMotorCommand.StepperMotorCommandType.OPEN_HALF_UP));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_half));
+                                    }
+                                    else if(viewHolder.getModeSelectSpinner().getSelectedItem().equals(options[2]))
+                                    {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new StepperMotorCommand(StepperMotorCommand.StepperMotorCommandType.OPEN));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_open));
+                                    }
+                                    else if(viewHolder.getModeSelectSpinner().getSelectedItem().equals(options[3]))
+                                    {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new StepperMotorCommand(StepperMotorCommand.StepperMotorCommandType.OPEN_HALF_DOWN));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_half));
+                                    }
+                                    else if(viewHolder.getModeSelectSpinner().getSelectedItem().equals(options[4]))
+                                    {
+                                        ((MainActivity) getActivity()).mService.issueCommand(device,
+                                                new StepperMotorCommand(StepperMotorCommand.StepperMotorCommandType.CLOSE_DOWN));
+                                        viewHolder.getDeviceImage().setImageDrawable(getResources().getDrawable(R.drawable.motor_closed));
+                                    }
+                                }
+                                catch (ExecutionException | InterruptedException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView)
+                            {
+                                // Do nothing.
+                            }
+                        });
+                        views.put(position, view);
+                        break;
                 }
             }
-            else
-            {
-                viewHolder = (ViewHolder)convertView.getTag();
-            }
-
-            return convertView;
+            return view;
         }
 
         private class RgbLedColor

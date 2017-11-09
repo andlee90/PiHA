@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -48,6 +49,12 @@ public class RelayModuleViewHolder implements ViewHolder
 
     @Override
     public Button getColorSelectButton()
+    {
+        return null;
+    }
+
+    @Override
+    public Spinner getModeSelectSpinner()
     {
         return null;
     }

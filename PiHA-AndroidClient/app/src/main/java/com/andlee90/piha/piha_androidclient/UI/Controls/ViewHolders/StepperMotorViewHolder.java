@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -13,15 +14,13 @@ public class StepperMotorViewHolder implements ViewHolder
 {
     private final ImageView deviceImage;
     private final TextView deviceName;
-    private final CheckBox blink;
-    private final Switch deviceSwitch;
+    private final Spinner deviceModeSpinner;
 
     public StepperMotorViewHolder(View view)
     {
         deviceImage = view.findViewById(R.id.device_image_view);
         deviceName = view.findViewById(R.id.device_name);
-        blink = view.findViewById(R.id.blink_check);
-        deviceSwitch = view.findViewById(R.id.device_switch);
+        deviceModeSpinner = view.findViewById(R.id.mode_select);
     }
 
     @Override
@@ -39,18 +38,24 @@ public class StepperMotorViewHolder implements ViewHolder
     @Override
     public CheckBox getBlink()
     {
-        return blink;
+        return null;
     }
 
     @Override
     public Switch getDeviceSwitch()
     {
-        return deviceSwitch;
+        return null;
     }
 
     @Override
     public Button getColorSelectButton()
     {
         return null;
+    }
+
+    @Override
+    public Spinner getModeSelectSpinner()
+    {
+        return this.deviceModeSpinner;
     }
 }
