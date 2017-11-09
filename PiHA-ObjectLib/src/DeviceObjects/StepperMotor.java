@@ -11,7 +11,7 @@ public class StepperMotor extends Device
 {
     public enum StepperMotorMode
     {
-        CLOCKWISE, COUNTER_CLOCKWISE, OFF
+        CLOSED_UP, HALF_UP, OPEN, HALF_DOWN, CLOSED_DOWN
     }
 
     private int deviceId;
@@ -126,14 +126,18 @@ public class StepperMotor extends Device
     {
         switch (s)
         {
-            case "CLOCKWISE":
-                return StepperMotorMode.CLOCKWISE;
-            case "COUNTER_CLOCKWISE":
-                return StepperMotorMode.COUNTER_CLOCKWISE;
-            case "OFF":
-                return StepperMotorMode.OFF;
+            case "CLOSED_UP":
+                return StepperMotorMode.CLOSED_UP;
+            case "HALF_UP":
+                return StepperMotorMode.HALF_UP;
+            case "OPEN":
+                return StepperMotorMode.OPEN;
+            case "HALF_DOWN":
+                return StepperMotorMode.HALF_DOWN;
+            case "CLOSED_DOWN":
+                return StepperMotorMode.CLOSED_DOWN;
             default:
-                return StepperMotorMode.OFF;
+                return StepperMotorMode.CLOSED_UP;
         }
     }
 }

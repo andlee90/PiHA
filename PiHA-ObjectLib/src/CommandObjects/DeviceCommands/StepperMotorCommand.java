@@ -9,8 +9,7 @@ public class StepperMotorCommand extends Command
 {
     public enum StepperMotorCommandType
     {
-        CW_10P, CW_20P, CW_30P, CW_40P, CW_50P, CW_60P, CW_70P, CW_80P, CW_90P, CW_100P, CCW_10P, CCW_20P, CCW_30P,
-        CCW_40P, CCW_50P, CCW_60P, CCW_70P, CCW_80P, CCW_90P, CCW_100P
+        CLOSE_UP, OPEN_HALF_UP, OPEN, OPEN_HALF_DOWN, CLOSE_DOWN
     }
 
     private StepperMotorCommandType commandType;
