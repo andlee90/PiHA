@@ -31,15 +31,17 @@ import com.andlee90.piha.piha_androidclient.UI.General.WrapperFragment;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import DeviceObjects.DeviceList;
 import RoleObjects.RoleList;
 import RuleObjects.RuleList;
 import UserObjects.UserList;
 
 public class ServerConfigActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ServerItem>
 {
-    public static final String RECEIVE_USER_LIST = "com.andlee90.piha.RECEIVE_USER_LIST";
-    public static final String RECEIVE_ROLE_LIST = "com.andlee90.piha.RECEIVE_ROLE_LIST";
-    public static final String RECEIVE_RULE_LIST = "com.andlee90.piha.RECEIVE_RULE_LIST";
+    public static final String RECEIVE_CONFIG_DEVICE_LIST = "com.andlee90.piha.RECEIVE_CONFIG_DEVICE_LIST";
+    public static final String RECEIVE_CONFIG_USER_LIST = "com.andlee90.piha.RECEIVE_CONFIG_USER_LIST";
+    public static final String RECEIVE_CONFIG_ROLE_LIST = "com.andlee90.piha.RECEIVE_CONFIG_ROLE_LIST";
+    public static final String RECEIVE_CONFIG_RULE_LIST = "com.andlee90.piha.RECEIVE_CONFIG_RULE_LIST";
 
     private static final int LOADER_ID = 2;
 
@@ -78,9 +80,10 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
 
         broadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(RECEIVE_USER_LIST);
-        intentFilter.addAction(RECEIVE_ROLE_LIST);
-        intentFilter.addAction(RECEIVE_RULE_LIST);
+        intentFilter.addAction(RECEIVE_CONFIG_DEVICE_LIST);
+        intentFilter.addAction(RECEIVE_CONFIG_USER_LIST);
+        intentFilter.addAction(RECEIVE_CONFIG_ROLE_LIST);
+        intentFilter.addAction(RECEIVE_CONFIG_RULE_LIST);
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -174,6 +177,7 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
             {
                 if(mService.isConnected(mServerItem.getId()))
                 {
+                    mService.getDevices(mServerItem);
                     mService.getUsers(mServerItem);
                     mService.getRoles(mServerItem);
                     mService.getRules(mServerItem);
@@ -198,7 +202,16 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            if(intent.getAction().equals(RECEIVE_USER_LIST))
+            if(intent.getAction().equals(RECEIVE_CONFIG_DEVICE_LIST))
+            {
+                DeviceList devices = (DeviceList)intent.getSerializableExtra("devices");
+                ServerDevicesFragment serverDevicesFragment = ServerDevicesFragment.newInstance();
+                WrapperFragment wf = (WrapperFragment)mFragments.get(1);
+                wf.swapFragment(serverDevicesFragment);
+                serverDevicesFragment.setListView(devices.getDevices());
+            }
+
+            else if(intent.getAction().equals(RECEIVE_CONFIG_USER_LIST))
             {
                 UserList users = (UserList)intent.getSerializableExtra("users");
                 ServerUsersFragment serverUsersFragment = ServerUsersFragment.newInstance();
@@ -207,7 +220,7 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
                 serverUsersFragment.setListView(users.getUsers());
             }
 
-            else if(intent.getAction().equals(RECEIVE_ROLE_LIST))
+            else if(intent.getAction().equals(RECEIVE_CONFIG_ROLE_LIST))
             {
                 RoleList roles = (RoleList)intent.getSerializableExtra("roles");
                 ServerRolesFragment serverRolesFragment = ServerRolesFragment.newInstance();
@@ -216,7 +229,7 @@ public class ServerConfigActivity extends AppCompatActivity implements LoaderMan
                 serverRolesFragment.setListView(roles.getRoles());
             }
 
-            else if(intent.getAction().equals(RECEIVE_RULE_LIST))
+            else if(intent.getAction().equals(RECEIVE_CONFIG_RULE_LIST))
             {
                 RuleList rules = (RuleList)intent.getSerializableExtra("rules");
                 ServerRulesFragment serverRulesFragment = ServerRulesFragment.newInstance();

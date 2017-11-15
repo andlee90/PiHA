@@ -78,6 +78,14 @@ public class ServerConnectionService extends Service
     }
 
     /**
+     * Execution method for requesting devices stored on a particular server.
+     */
+    public void getDevices(ServerItem server) throws ExecutionException, InterruptedException
+    {
+        new GetDevicesTask(server).execute();
+    }
+
+    /**
      * Execution method for requesting users stored on a particular server.
      */
     public void getUsers(ServerItem server) throws ExecutionException, InterruptedException
@@ -217,13 +225,57 @@ public class ServerConnectionService extends Service
     }
 
     /**
+     * Background task for receiving the devices stored on a given server.
+     *
+     * Performs the following actions:
+     *
+     * 1) Get object streams from the corresponding table.
+     * 2) Write empty DeviceList to server and receive back updated DeviceList.
+     * 3) Send RECEIVE_CONFIG_DEVICE_LIST broadcast.
+     */
+    private class GetDevicesTask extends AsyncTask<Void, Void, Void>
+    {
+        private ServerItem server;
+
+        GetDevicesTask(ServerItem server)
+        {
+            this.server = server;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            DeviceList devices = new DeviceList();
+
+            try
+            {
+                ObjectOutputStream outputStream = sOutputTable.get(server.getId());
+                ObjectInputStream inputStream = sInputTable.get(server.getId());
+
+                outputStream.writeObject(devices);
+                devices = (DeviceList) inputStream.readObject();
+
+                Intent deviceListIntent = new Intent(ServerConfigActivity.RECEIVE_CONFIG_DEVICE_LIST);
+                deviceListIntent.putExtra("devices", devices);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(deviceListIntent);
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
+
+    /**
      * Background task for receiving the users stored on a given server.
      *
      * Performs the following actions:
      *
      * 1) Get object streams from the corresponding table.
      * 2) Write empty UserList to server and receive back updated UserList.
-     * 3) Send RECEIVE_USER_LIST broadcast.
+     * 3) Send RECEIVE_CONFIG_USER_LIST broadcast.
      */
     private class GetUsersTask extends AsyncTask<Void, Void, Void>
     {
@@ -247,7 +299,7 @@ public class ServerConnectionService extends Service
                 outputStream.writeObject(users);
                 users = (UserList) inputStream.readObject();
 
-                Intent userListIntent = new Intent(ServerConfigActivity.RECEIVE_USER_LIST);
+                Intent userListIntent = new Intent(ServerConfigActivity.RECEIVE_CONFIG_USER_LIST);
                 userListIntent.putExtra("users", users);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(userListIntent);
             }
@@ -267,7 +319,7 @@ public class ServerConnectionService extends Service
      *
      * 1) Get object streams from the corresponding table.
      * 2) Write empty RoleList to server and receive back updated RoleList.
-     * 3) Send RECEIVE_ROLE_LIST broadcast.
+     * 3) Send RECEIVE_CONFIG_ROLE_LIST broadcast.
      */
     private class GetRolesTask extends AsyncTask<Void, Void, Void>
     {
@@ -291,7 +343,7 @@ public class ServerConnectionService extends Service
                 outputStream.writeObject(roles);
                 roles = (RoleList) inputStream.readObject();
 
-                Intent roleListIntent = new Intent(ServerConfigActivity.RECEIVE_ROLE_LIST);
+                Intent roleListIntent = new Intent(ServerConfigActivity.RECEIVE_CONFIG_ROLE_LIST);
                 roleListIntent.putExtra("roles", roles);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(roleListIntent);
             }
@@ -311,7 +363,7 @@ public class ServerConnectionService extends Service
      *
      * 1) Get object streams from the corresponding table.
      * 2) Write empty RuleList to server and receive back updated RuleList.
-     * 3) Send RECEIVE_RULE_LIST broadcast.
+     * 3) Send RECEIVE_CONFIG_RULE_LIST broadcast.
      */
     private class GetRulesTask extends AsyncTask<Void, Void, Void>
     {
@@ -335,7 +387,7 @@ public class ServerConnectionService extends Service
                 outputStream.writeObject(rules);
                 rules = (RuleList) inputStream.readObject();
 
-                Intent ruleListIntent = new Intent(ServerConfigActivity.RECEIVE_RULE_LIST);
+                Intent ruleListIntent = new Intent(ServerConfigActivity.RECEIVE_CONFIG_RULE_LIST);
                 ruleListIntent.putExtra("rules", rules);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(ruleListIntent);
             }
