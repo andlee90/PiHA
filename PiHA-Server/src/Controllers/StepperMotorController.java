@@ -43,14 +43,21 @@ public class StepperMotorController extends DeviceController
         this.gpio.setShutdownOptions(true, PinState.LOW, pins);
         this.motor = new GpioStepperMotorComponent(pins);
 
-        byte[] single_step_sequence = new byte[4];
-        single_step_sequence[0] = (byte) 0b0001;
-        single_step_sequence[1] = (byte) 0b0010;
-        single_step_sequence[2] = (byte) 0b0100;
-        single_step_sequence[3] = (byte) 0b1000;
+        /* Too little torque */
+        //byte[] single_step_sequence = new byte[4];
+        //single_step_sequence[0] = (byte) 0b0001;
+        //single_step_sequence[1] = (byte) 0b0010;
+        //single_step_sequence[2] = (byte) 0b0100;
+        //single_step_sequence[3] = (byte) 0b1000;
+
+        byte[] double_step_sequence = new byte[4];
+        double_step_sequence[0] = (byte) 0b0011;
+        double_step_sequence[1] = (byte) 0b0110;
+        double_step_sequence[2] = (byte) 0b1100;
+        double_step_sequence[3] = (byte) 0b1001;
 
         this.motor.setStepInterval(2);
-        this.motor.setStepSequence(single_step_sequence);
+        this.motor.setStepSequence(double_step_sequence);
         this.motor.setStepsPerRevolution(2038);
     }
 
@@ -68,24 +75,24 @@ public class StepperMotorController extends DeviceController
                 (StepperMotorCommand.StepperMotorCommandType) ct;
 
         Hashtable<StepperMotor.StepperMotorMode, Integer> positionMap = new Hashtable<>();
-        positionMap.put(StepperMotor.StepperMotorMode.CLOSED_UP, 0);
-        positionMap.put(StepperMotor.StepperMotorMode.HALF_UP, 4);
+        positionMap.put(StepperMotor.StepperMotorMode.CLOSED_UP, 14);
+        positionMap.put(StepperMotor.StepperMotorMode.HALF_UP, 11);
         positionMap.put(StepperMotor.StepperMotorMode.OPEN, 7);
-        positionMap.put(StepperMotor.StepperMotorMode.HALF_DOWN, 11);
-        positionMap.put(StepperMotor.StepperMotorMode.CLOSED_DOWN, 14);
+        positionMap.put(StepperMotor.StepperMotorMode.HALF_DOWN, 4);
+        positionMap.put(StepperMotor.StepperMotorMode.CLOSED_DOWN, 0);
 
         int currentPosition = positionMap.get(device.getDeviceMode());
 
         switch(stepperMotorCommandType)
         {
             case CLOSE_UP:
-                motor.rotate(0-currentPosition);
+                motor.rotate(14-currentPosition);
                 device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_UP);
                 break;
 
             case OPEN_HALF_UP:
-                if(currentPosition > 4) motor.rotate(4-currentPosition);
-                else if(currentPosition < 4) motor.rotate(4+currentPosition);
+                if(currentPosition > 11) motor.rotate(11-currentPosition);
+                else if(currentPosition < 11) motor.rotate(11-currentPosition);
                 device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_UP);
                 break;
 
@@ -96,13 +103,13 @@ public class StepperMotorController extends DeviceController
                 break;
 
             case OPEN_HALF_DOWN:
-                if(currentPosition > 11) motor.rotate(11-currentPosition);
-                else if(currentPosition < 11) motor.rotate(11-currentPosition);
+                if(currentPosition > 4) motor.rotate(4-currentPosition);
+                else if(currentPosition < 4) motor.rotate(4+currentPosition);
                 device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_DOWN);
                 break;
 
             case CLOSE_DOWN:
-                motor.rotate(14-currentPosition);
+                motor.rotate(0-currentPosition);
                 device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_DOWN);
                 break;
         }
