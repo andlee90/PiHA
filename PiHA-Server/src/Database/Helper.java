@@ -41,9 +41,10 @@ public class Helper
                 {
                     System.out.print(" Failed\n");
 
-                    BuildVariants.buildTestDB();
+                    // BuildVariants.buildTestDB();
                     // BuildVariants.buildProductionDB();
                     // BuildVariants.buildPowerStripDB();
+                    BuildVariants.buildBlindServerDB();
                 }
             }
         }

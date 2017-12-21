@@ -618,4 +618,177 @@ class BuildVariants
         System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for RELAY8");
         System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for RELAY8\n");
     }
+
+    /**
+     * Builds piha_server_resources.db with all data necessary for a blind controller.
+     */
+    static void buildBlindServerDB()
+    {
+        System.out.println("> [" + MainManager.getDate() + "] Creating piha_server_resources.db with blind server variants...");
+
+        Helper.executeStatement(Queries.getRolesTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Roles table created");
+
+        Helper.executeStatement(Queries.getDevicesTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Devices table created");
+
+        Helper.executeStatement(Queries.getPermissionsTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Permissions table created");
+
+        Helper.executeStatement(Queries.getUsersTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Users table created");
+
+        Helper.executeStatement(Queries.getRulesTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Rules table created");
+
+        Helper.executeStatement(Queries.getPinsTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Pins table created");
+
+        Helper.executeStatement(Queries.getPinAssignmentTableCreationQuery());
+        System.out.println("> [" + MainManager.getDate() + "] Pin-Assignments table created\n");
+
+        Helper.insertRole("ADMIN", 0);
+        System.out.println("> [" + MainManager.getDate() + "] Default admin role added to roles table");
+
+        Helper.insertRole("USER", 1);
+        System.out.println("> [" + MainManager.getDate() + "] Default user role added to roles table");
+
+        Helper.insertRole("RESTRICTED_USER", 2);
+        System.out.println("> [" + MainManager.getDate() + "] Default user role added to roles table\n");
+
+        Helper.insertPermission("NONE");
+        System.out.println("> [" + MainManager.getDate() + "] Default permission NONE added to permissions table");
+
+        Helper.insertPermission("VIEW_ONLY");
+        System.out.println("> [" + MainManager.getDate() + "] Default permission VIEW_ONLY added to permissions table");
+
+        Helper.insertPermission("MODIFY");
+        System.out.println("> [" + MainManager.getDate() + "] Default permission MODIFY added to permissions table\n");
+
+        Helper.insertUser("admin", "drowssap", "admin@admin.com", "admin", "admin", "ADMIN");
+        System.out.println("> [" + MainManager.getDate() + "] Default admin user added to users table");
+
+        Helper.insertUser("andlee", "password", "andlee@andlee.com", "Andrew", "Smith", "USER");
+        System.out.println("> [" + MainManager.getDate() + "] User andlee added to users table");
+
+        Helper.insertUser("timzeh", "password", "timzeh@timzeh.com", "Tim", "Kelly", "RESTRICTED_USER");
+        System.out.println("> [" + MainManager.getDate() + "] User timzeh added to users table\n");
+
+        Helper.insertPin(0);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 0 added tp pins table");
+
+        Helper.insertPin(1);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 1 added tp pins table");
+
+        Helper.insertPin(2);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 2 added tp pins table");
+
+        Helper.insertPin(3);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 3 added tp pins table");
+
+        Helper.insertPin(4);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 4 added tp pins table");
+
+        Helper.insertPin(5);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 5 added tp pins table");
+
+        Helper.insertPin(6);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 6 added tp pins table");
+
+        Helper.insertPin(7);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 7 added tp pins table");
+
+        Helper.insertPin(8);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 8 added tp pins table");
+
+        Helper.insertPin(9);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 9 added tp pins table");
+
+        Helper.insertPin(10);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 10 added tp pins table");
+
+        Helper.insertPin(11);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 11 added tp pins table");
+
+        Helper.insertPin(12);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 12 added tp pins table");
+
+        Helper.insertPin(13);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 13 added tp pins table");
+
+        Helper.insertPin(14);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 14 added tp pins table");
+
+        Helper.insertPin(15);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 15 added tp pins table");
+
+        Helper.insertPin(16);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 16 added tp pins table");
+
+        Helper.insertPin(21);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 21 added tp pins table");
+
+        Helper.insertPin(22);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 22 added tp pins table");
+
+        Helper.insertPin(23);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 23 added tp pins table");
+
+        Helper.insertPin(24);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 24 added tp pins table");
+
+        Helper.insertPin(25);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 25 added tp pins table");
+
+        Helper.insertPin(26);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 26 added tp pins table");
+
+        Helper.insertPin(27);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 27 added tp pins table");
+
+        Helper.insertPin(28);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 28 added tp pins table");
+
+        Helper.insertPin(29);
+        System.out.println("> [" + MainManager.getDate() + "] Pin 29 added tp pins table\n");
+
+        Helper.insertDevice( "MOTOR1", "STEP_MOTOR", "AVAILABLE", "CLOSED_UP");
+        Helper.insertPinAssignment(15, "MOTOR1");
+        Helper.insertPinAssignment(16, "MOTOR1");
+        Helper.insertPinAssignment(1, "MOTOR1");
+        Helper.insertPinAssignment(4, "MOTOR1");
+        Helper.insertRule("ADMIN", "MODIFY", "MOTOR1");
+        Helper.insertRule("USER", "VIEW_ONLY", "MOTOR1");
+        Helper.insertRule("RESTRICTED_USER", "NONE", "MOTOR1");
+        System.out.println("> [" + MainManager.getDate() + "] Default device MOTOR1 added to devices table");
+        System.out.println("> [" + MainManager.getDate() + "] MOTOR1 assigned to pins 15, 16, 1 & 4");
+        System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for MOTOR1");
+        System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for MOTOR1\n");
+
+        Helper.insertDevice( "MOTOR2", "STEP_MOTOR", "AVAILABLE", "CLOSED_UP");
+        Helper.insertPinAssignment(5, "MOTOR2");
+        Helper.insertPinAssignment(6, "MOTOR2");
+        Helper.insertPinAssignment(10, "MOTOR2");
+        Helper.insertPinAssignment(11, "MOTOR2");
+        Helper.insertRule("ADMIN", "MODIFY", "MOTOR2");
+        Helper.insertRule("USER", "VIEW_ONLY", "MOTOR2");
+        Helper.insertRule("RESTRICTED_USER", "NONE", "MOTOR2");
+        System.out.println("> [" + MainManager.getDate() + "] Default device MOTOR2 added to devices table");
+        System.out.println("> [" + MainManager.getDate() + "] MOTOR2 assigned to pins 5, 6, 10 & 11");
+        System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for MOTOR2");
+        System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for MOTOR2\n");
+
+        Helper.insertDevice( "MOTOR3", "STEP_MOTOR", "AVAILABLE", "CLOSED_UP");
+        Helper.insertPinAssignment(26, "MOTOR3");
+        Helper.insertPinAssignment(27, "MOTOR3");
+        Helper.insertPinAssignment(28, "MOTOR3");
+        Helper.insertPinAssignment(29, "MOTOR3");
+        Helper.insertRule("ADMIN", "MODIFY", "MOTOR3");
+        Helper.insertRule("USER", "VIEW_ONLY", "MOTOR3");
+        Helper.insertRule("RESTRICTED_USER", "NONE", "MOTOR3");
+        System.out.println("> [" + MainManager.getDate() + "] Default device MOTOR3 added to devices table");
+        System.out.println("> [" + MainManager.getDate() + "] MOTOR3 assigned to pins 26, 27, 28 & 29");
+        System.out.println("> [" + MainManager.getDate() + "] MODIFY permissions given to ADMIN for MOTOR3");
+        System.out.println("> [" + MainManager.getDate() + "] VIEW_ONLY permissions given to USER for MOTOR3\n");
+    }
 }
