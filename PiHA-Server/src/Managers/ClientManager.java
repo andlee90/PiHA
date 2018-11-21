@@ -41,7 +41,7 @@ public class ClientManager extends Thread
         this.threadId = id;
         this.clientConnections = sm.getClientConnections();
 
-        start();
+        this.start();
     }
 
     @Override
@@ -75,58 +75,8 @@ public class ClientManager extends Thread
                     try
                     {
                         Object object = serverInputStream.readObject();
+                        transact(object);
 
-                        if (object instanceof DeviceList)
-                        {
-                            DeviceList devices = getDevices();
-                            serverOutputStream.writeObject(devices);
-                        }
-
-                        else if (object instanceof UserList)
-                        {
-                            UserList users = getUsers();
-                            serverOutputStream.writeObject(users);
-                        }
-
-                        else if (object instanceof RuleList)
-                        {
-                            RuleList rules = getRules();
-                            serverOutputStream.writeObject(rules);
-                        }
-
-                        else if (object instanceof RoleList)
-                        {
-                            RoleList roles = getRoles();
-                            serverOutputStream.writeObject(roles);
-                        }
-
-                        else if (object instanceof Device)
-                        {
-                            device = (Device) object;
-
-                            Helper.updateDevice(device.getDeviceId(),
-                                    device.getDeviceName(),
-                                    device.getDeviceType().toString(),
-                                    device.getDeviceStatus().toString(),
-                                    device.getDeviceMode().toString());
-
-                            dc = DeviceControllerFactory.getDeviceController(device);
-                        }
-
-                        else if (object instanceof Command)
-                        {
-                            Command command = (Command) object;
-
-                            if (dc != null)
-                            {
-                                Enum deviceMode = dc.issueCommand(command.getCommandType());
-                                device.setDeviceMode(deviceMode);
-
-                                // disregard the state of any Device already written to the stream
-                                serverOutputStream.reset();
-                                serverOutputStream.writeObject(device);
-                            }
-                        }
                     }
                     catch (EOFException e)
                     {
@@ -143,7 +93,69 @@ public class ClientManager extends Thread
                 interrupt();
             }
         }
-        catch (IOException | ClassNotFoundException | InterruptedException e)
+        catch (IOException | ClassNotFoundException e)
+        {
+            interrupt();
+        }
+    }
+
+    private void transact(Object object)
+    {
+        try
+        {
+            if (object instanceof DeviceList)
+            {
+                DeviceList devices = getDevices();
+                serverOutputStream.writeObject(devices);
+            }
+
+            else if (object instanceof UserList)
+            {
+                UserList users = getUsers();
+                serverOutputStream.writeObject(users);
+            }
+
+            else if (object instanceof RuleList)
+            {
+                RuleList rules = getRules();
+                serverOutputStream.writeObject(rules);
+            }
+
+            else if (object instanceof RoleList)
+            {
+                RoleList roles = getRoles();
+                serverOutputStream.writeObject(roles);
+            }
+
+            else if (object instanceof Device)
+            {
+                device = (Device) object;
+
+                Helper.updateDevice(device.getDeviceId(),
+                        device.getDeviceName(),
+                        device.getDeviceType().toString(),
+                        device.getDeviceStatus().toString(),
+                        device.getDeviceMode().toString());
+
+                dc = DeviceControllerFactory.getDeviceController(device);
+            }
+
+            else if (object instanceof Command)
+            {
+                Command command = (Command) object;
+
+                if (dc != null)
+                {
+                    Enum deviceMode = dc.issueCommand(command.getCommandType());
+                    device.setDeviceMode(deviceMode);
+
+                    // disregard the state of any Device already written to the stream
+                    serverOutputStream.reset();
+                    serverOutputStream.writeObject(device);
+                }
+            }
+        }
+        catch (IOException | InterruptedException e)
         {
             interrupt();
         }

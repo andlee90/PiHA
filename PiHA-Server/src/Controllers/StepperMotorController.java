@@ -8,11 +8,11 @@ import Managers.MainManager;
 import com.pi4j.io.gpio.*;
 import com.pi4j.component.motor.impl.GpioStepperMotorComponent;
 
-import java.util.HashMap;
 import java.util.Hashtable;
 
 /**
- * Implementation of DeviceController for controlling a Stepper Motor. Commented-out lines are commented to facilitate
+ * Implementation of DeviceController for controlling a Stepper Motor. Issues each command to the Motor on a new Thread
+ * to allow multiple Motors to run simultaneously. Commented-out lines are commented to facilitate
  * testing outside of a Raspbian environment (In this case, no GPIO pins are available and an exception is thrown when
  * these lines are called). Uncomment before testing on a Pi.
  */
@@ -20,7 +20,8 @@ public class StepperMotorController extends DeviceController
 {
     private volatile StepperMotor device;      // The device being controlled.
     private GpioController gpio;               // The controller for the device.
-    private GpioStepperMotorComponent motor;    // The component.
+    private GpioStepperMotorComponent motor;   // The component.
+    private Thread thread;                     // The Thread within which each Motor command is executed.
 
 
     StepperMotorController(Device device)
@@ -81,39 +82,67 @@ public class StepperMotorController extends DeviceController
         positionMap.put(StepperMotor.StepperMotorMode.HALF_DOWN, 4);
         positionMap.put(StepperMotor.StepperMotorMode.CLOSED_DOWN, 0);
 
+        // Only issue the command if there are no commands currently being executed.
         int currentPosition = positionMap.get(device.getDeviceMode());
 
-        switch(stepperMotorCommandType)
+        if(thread == null || !thread.isAlive())
         {
-            case CLOSE_UP:
-                motor.rotate(14-currentPosition);
-                device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_UP);
-                break;
+            switch(stepperMotorCommandType)
+            {
+                case CLOSE_UP:
+                    thread = new Thread(() -> motor.rotate(14 - currentPosition));
+                    thread.start();
+                    device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_UP);
+                    break;
 
-            case OPEN_HALF_UP:
-                if(currentPosition > 11) motor.rotate(11-currentPosition);
-                else if(currentPosition < 11) motor.rotate(11-currentPosition);
-                device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_UP);
-                break;
+                case OPEN_HALF_UP:
+                    thread = new Thread(() -> {
+                        if(currentPosition > 11) motor.rotate(11-currentPosition);
+                        else if(currentPosition < 11) motor.rotate(11-currentPosition);
+                    });
+                    thread.start();
+                    device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_UP);
+                    break;
 
-            case OPEN:
-                if(currentPosition > 7) motor.rotate(7-currentPosition);
-                else if(currentPosition < 7) motor.rotate(7-currentPosition);
-                device.setDeviceMode(StepperMotor.StepperMotorMode.OPEN);
-                break;
+                case OPEN:
+                    thread = new Thread(() -> {
+                        if(currentPosition > 7) motor.rotate(7-currentPosition);
+                        else if(currentPosition < 7) motor.rotate(7-currentPosition);
+                    });
+                    thread.start();
+                    device.setDeviceMode(StepperMotor.StepperMotorMode.OPEN);
+                    break;
 
-            case OPEN_HALF_DOWN:
-                if(currentPosition > 4) motor.rotate(4-currentPosition);
-                else if(currentPosition < 4) motor.rotate(4+currentPosition);
-                device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_DOWN);
-                break;
+                case OPEN_HALF_DOWN:
+                    thread = new Thread(() -> {
+                        if(currentPosition > 4) motor.rotate(4-currentPosition);
+                        else if(currentPosition < 4) motor.rotate(4+currentPosition);
+                    });
+                    thread.start();
+                    device.setDeviceMode(StepperMotor.StepperMotorMode.HALF_DOWN);
+                    break;
 
-            case CLOSE_DOWN:
-                motor.rotate(0-currentPosition);
-                device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_DOWN);
-                break;
+                case CLOSE_DOWN:
+                    thread = new Thread(() -> motor.rotate(0-currentPosition));
+                    thread.start();
+                    device.setDeviceMode(StepperMotor.StepperMotorMode.CLOSED_DOWN);
+                    break;
+            }
+
+            updateDb();
         }
 
+        else
+        {
+            System.out.println("> [" + MainManager.getDate() + "] "
+                    + "Error: " + device.getDeviceName() + " already in use");
+        }
+
+        return device.getDeviceMode();
+    }
+
+    private void updateDb()
+    {
         System.out.println("> [" + MainManager.getDate() + "] "
                 + device.getDeviceName() + " on "
                 + device.getDevicePins() + " is "
@@ -124,7 +153,5 @@ public class StepperMotorController extends DeviceController
                 Device.DeviceType.STEP_MOTOR.toString(),
                 device.getDeviceStatus().toString(),
                 device.getDeviceMode().toString());
-
-        return device.getDeviceMode();
     }
 }
